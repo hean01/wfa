@@ -1,0 +1,98 @@
+#+STARTUP: indent overview
+#+TITLE:     Workflow Internals
+#+AUTHOR:    Henrik Andersson
+#+EMAIL:     hean01 AT gmail.com
+#+DATE:      2013-09-14 Sat
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+XSLT:
+
+* Workflow Internals
+** Overview
+The application consist of two activities and a service. The service
+holds all logics and data where activities are simple viewers.  The
+two activities are managing of workflows and the progress of a current
+workflow.
+** Classes
+*** WorkflowTimerActivity
+This is the main activity, responsible to start the service and be the
+manager of workflows.
+*** WorkflowTimerProgressActivity
+This activity is the visual progress of an ongoing workflow.
+*** WorkflowTimerService
+The service is the core of Workflow Timer, it holds all logics and data.
+*** Workflow
+A workflow consists of several tasks in a specific order. A workflow
+has a name, description and a state. States are /READY/, /RUNNING/ and
+/FINISHED/.
+*** WorkflowTask
+A task has a description, length of time and a state. States are
+/READY/, /RUNNING/ and /FINISHED/.
+*** WorkflowManager
+The workflow manager is responsible for loading, storing of
+workflows. This class is the only class responsible for instantiating
+Workflow objects.
+** Classdiagram
+
+#+BEGIN_SRC plantuml :file class_diagram.svg
+skinparam backgroundColor #FFFFFF
+hide circle
+
+skinparam class {
+  AttributeIconSize 0
+  ArrowColor Black
+  BackgroundColor White
+  BorderColor Black
+}
+
+package com.github.hean01.workflowtimer {
+class WorkflowTimerService {
+}
+
+class WorkflowTimerActivity {
+}
+
+class WorkflowTimerProgressActivity {
+}
+
+class WorkflowManager {
+  + initialize()
+  # workflows : List<Workflow>
+}
+
+class Workflow {
+ + initialize(String)
+ + clock(int)
+ + reset()
+ + name : String
+ + description : String
+ # tasks : List<WorkflowTask>
+}
+
+class WorkflowTask {
+  + description : String
+  + isFinished() : boolean
+  + reset()
+  + clock()
+}
+}
+
+
+
+WorkflowTimerProgressActivity .. WorkflowTimerService
+WorkflowTimerActivity .. WorkflowTimerService
+WorkflowTimerActivity <|-- android.app.Activity
+WorkflowTimerService <|-- android.app.Service
+WorkflowTimerService o-- WorkflowManager
+WorkflowManager "1" o-- "0..*" Workflow
+Workflow "1" o-- "1..*" WorkflowTask
+
+#+END_SRC
