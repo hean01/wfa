@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Workflow Timer</string>
+    <string name="service_name">Workflow Timer Service</string>
+    <string name="wft_unnamed">Unnamed</string>
+    <string name="wft_service_started">Workflow Timer service has started.</string>
+    <string name="wft_service_stopped">Workflow Timer service has stopped.</string>
+    <string name="wft_service_connected">Connected to WT service.</string>
+    <string name="wft_service_disconnected">Disconnected from WT service.</string>
 </resources>
