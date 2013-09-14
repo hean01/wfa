@@ -68,7 +68,7 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 		_timer.cancel();
 		_timer = null;
 
-		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Workflow is finished."));
+		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Workflow is completed."));
 	    }
 	}
     };
