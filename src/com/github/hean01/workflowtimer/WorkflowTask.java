@@ -49,6 +49,16 @@ public class WorkflowTask
 	return _name;
     }
 
+    public int length()
+    {
+	return _totalTime;
+    }
+
+    public int timeLeft()
+    {
+	return (_totalTime - _elapsedTime);
+    }
+
     /** Reset the internal state of Worflow task */
     public void reset()
     {
