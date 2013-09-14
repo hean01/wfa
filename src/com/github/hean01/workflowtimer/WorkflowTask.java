@@ -22,12 +22,6 @@ public class WorkflowTask
 	return _state;
     }
 
-    /** Get seconds left for task */
-    public int getSecondsLeft()
-    {
-	return (_totalTime - _elapsedTime) / 1000;
-    }
-
     /** Clock the task if currently running */
     public void clock(int time)
     {
