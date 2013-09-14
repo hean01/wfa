@@ -13,8 +13,9 @@ import android.os.Message;
 import android.content.Intent;
 import android.content.Context;
 import android.app.Service;
-import android.app.AlarmManager;
 import android.widget.Toast;
+import android.media.AudioManager;
+import android.media.SoundPool;
 
 public class WorkflowTimerService extends Service implements TextToSpeech.OnInitListener
 {
@@ -22,12 +23,15 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
     public static final int CLOCK_RESOLUTION_MS = 1000;
 
     public static final int MSG_SAY = 1;
+    public static final int MSG_PLAY_BELL = 2;
 
     private WorkflowManager _workflowManager;
     private Workflow _currentWorkflow;
     private static Timer _timer;
     private boolean _useAudioFeedback = false;
     private TextToSpeech _tts;
+    private SoundPool _sp;
+    private int _soundBell;
 
     public class WorkflowTimerServiceBinder extends Binder {
 	WorkflowTimerService getService() {
@@ -46,6 +50,9 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 	    {
 	    case MSG_SAY:
 		say((String)msg.obj);
+		break;
+	    case MSG_PLAY_BELL:
+		_sp.play(_soundBell, 1.0f, 1.0f, 0, 0, 1.0f);
 		break;
 	    default:
 		Log.w(TAG, "No handler for message code " + msg.what);
@@ -100,6 +107,8 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
     public void onCreate()
     {
 	_tts = new TextToSpeech(this, this);
+	_sp = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+	_soundBell = _sp.load(this, R.raw.bell, 1);
 	_workflowManager = new WorkflowManager(this);
 
 	Toast.makeText(this, R.string.wft_service_started, Toast.LENGTH_SHORT).show();

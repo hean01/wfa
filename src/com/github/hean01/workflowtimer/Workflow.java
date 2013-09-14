@@ -70,6 +70,8 @@ public class Workflow
 	{
 	    if ((_currentTask.length() >= (30*1000)) && (_currentTask.timeLeft() == (10*1000)))
 	    {
+		_serviceHandler.sendEmptyMessage(WorkflowTimerService.MSG_PLAY_BELL);
+
 		WorkflowTask task = _tasks.get(nidx);
 		Message msg = _serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY,
 							    task.name() + " starts in 10 seconds.");
@@ -91,6 +93,7 @@ public class Workflow
 	    else if(_currentTask.timeLeft() == 0 &&
 		    _currentTask.getState() != WorkflowTask.State.FINISHED)
 	    {
+		_serviceHandler.sendEmptyMessage(WorkflowTimerService.MSG_PLAY_BELL);
 		WorkflowTask task = _tasks.get(nidx);
 		Message msg = _serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY, task.name());
 		_serviceHandler.sendMessage(msg);
