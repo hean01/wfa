@@ -29,13 +29,13 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
     private boolean _useAudioFeedback = false;
     private TextToSpeech _tts;
 
-    public class WorkflowTimerBinder extends Binder {
+    public class WorkflowTimerServiceBinder extends Binder {
 	WorkflowTimerService getService() {
 	    return WorkflowTimerService.this;
 	}
     };
 
-    private final IBinder _Binder = new WorkflowTimerBinder();
+    private final IBinder _binder = new WorkflowTimerServiceBinder();
 
     private final Handler _serviceHandler = new Handler()
     {
@@ -148,6 +148,6 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 
     @Override
     public IBinder onBind(Intent intent) {
-	return _Binder;
+	return _binder;
     }
 }
