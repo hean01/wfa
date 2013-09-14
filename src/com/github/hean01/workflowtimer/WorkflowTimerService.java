@@ -2,11 +2,15 @@ package com.github.hean01.workflowtimer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.ListIterator;
 
 import android.util.Log;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Handler;
+import android.os.Message;
 import android.content.Intent;
 import android.content.Context;
 import android.app.Service;
@@ -15,9 +19,11 @@ import android.widget.Toast;
 
 public class WorkflowTimerService extends Service
 {
-    public static final int CLOCK_RESOLUTION_MS = 250;
+    public static final int CLOCK_RESOLUTION_MS = 1000;
 
     private WorkflowManager _workflowManager;
+    private Workflow _currentWorkflow;
+    private static Timer _timer;
 
     /** Workflow manager */
     public static class WorkflowManager
@@ -28,7 +34,14 @@ public class WorkflowTimerService extends Service
 	public WorkflowManager(WorkflowTimerService service)
 	{
 	    _service = service;
+	    _workflows = new ArrayList<Workflow>();
 	    initialize();
+	}
+
+	/** get workflow at index */
+	public Workflow get(int index)
+	{
+	    return _workflows.get(index);
 	}
 
 	/** initialize manager with stored workflows */
@@ -45,6 +58,9 @@ public class WorkflowTimerService extends Service
 
 		load(file);
 	    }
+
+	    /* dummy */
+	    load(null);
 	}
 
 	/** load workflow file and add to manager */
@@ -85,11 +101,16 @@ public class WorkflowTimerService extends Service
 	/** Clock the task if currently running */
 	public void clock(int time)
 	{
-	    if (_state == State.RUNNING)
-		_elapsedTime += time;
+	    if (_state == State.READY)
+		_state = State.RUNNING;
 
 	    if (_elapsedTime >= _totalTime)
+	    {
 		_state = State.FINISHED;
+		return;
+	    }
+
+	    _elapsedTime += time;
 	}
 
 	/** Reset the internal state of Worflow task */
@@ -121,8 +142,6 @@ public class WorkflowTimerService extends Service
 	    _tasks = new ArrayList<WorkflowTask>();
 
 	    initialize(xml);
-
-	    _progressIterator = _tasks.listIterator();
 	}
 
 	/** Check if Workflow has reached end */
@@ -137,11 +156,19 @@ public class WorkflowTimerService extends Service
 	    ListIterator<WorkflowTask> it = _tasks.listIterator();
 	    while(it.hasNext())
 		it.next().reset();
+
+	    _progressIterator = _tasks.listIterator();
+	    _currentTask = _progressIterator.next();
+
+	    _state = State.READY;
 	}
 
 	/** Clock the workflow */
 	public void clock(int time)
 	{
+	    if (_state == State.READY)
+		_state = State.RUNNING;
+
 	    _currentTask.clock(time);
 
 	    if (_currentTask.getState() != WorkflowTask.State.FINISHED)
@@ -150,11 +177,13 @@ public class WorkflowTimerService extends Service
 	    /* check if workflow has reached the end */
 	    if (!_progressIterator.hasNext())
 	    {
+		Log.d("test", "Reached end of workflow.");
 		_state = State.FINISHED;
 		return;
 	    }
 
 	    /* go to next task in workflow */
+	    Log.d("test", "Next task in workflow.");
 	    _currentTask = _progressIterator.next();
 	}
 
@@ -168,7 +197,9 @@ public class WorkflowTimerService extends Service
 	    _tasks.add(new WorkflowTask("Task 2", 10*1000));
 	    _tasks.add(new WorkflowTask("Task 3", 5*1000));
 
-	    _state = State.READY;
+	    _progressIterator = _tasks.listIterator();
+
+	    reset();
 	}
     };
 
@@ -180,9 +211,53 @@ public class WorkflowTimerService extends Service
 
     private final IBinder _Binder = new WorkflowTimerBinder();
 
+    private final Handler _toastHandler = new Handler()
+    {
+	@Override
+	public void handleMessage(Message msg)
+	{
+	    Toast.makeText(getApplicationContext(), "Workflow has finished.", Toast.LENGTH_SHORT).show();
+	}
+    };
+
+    private class ClockTask extends TimerTask
+    {
+	public void run()
+	{
+	    /* clock the workflow */
+	    _currentWorkflow.clock(WorkflowTimerService.CLOCK_RESOLUTION_MS);
+
+	    /* check if workflow is finished */
+	    if (_currentWorkflow.isFinished())
+	    {
+		_currentWorkflow = null;
+		_timer.cancel();
+		_timer = null;
+
+		_toastHandler.sendEmptyMessage(0);
+	    }
+	}
+    };
+
+    private final ClockTask _clockTask = new ClockTask();
+
     public void runWorkflow()
     {
-	Toast.makeText(this, "Running!!!!", Toast.LENGTH_SHORT).show();
+	/* check if already running */
+	if (!(_timer == null))
+	{
+	    Toast.makeText(this, "Workflow already in progress", Toast.LENGTH_SHORT).show();
+	    return;
+	}
+
+	/* start new workflow */
+	_currentWorkflow = _workflowManager.get(0);
+	_currentWorkflow.reset();
+
+	_timer = new Timer();
+	_timer.scheduleAtFixedRate(_clockTask, 0, WorkflowTimerService.CLOCK_RESOLUTION_MS);
+
+	Toast.makeText(this, "Workflow started", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -194,6 +269,8 @@ public class WorkflowTimerService extends Service
 
     @Override
     public void onDestroy() {
+	if (!(_timer == null))
+	    _timer.cancel();
 	Toast.makeText(this, R.string.wft_service_stopped, Toast.LENGTH_SHORT).show();
     }
 
