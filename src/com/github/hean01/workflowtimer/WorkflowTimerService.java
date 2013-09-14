@@ -57,7 +57,7 @@ public class WorkflowTimerService extends Service
     /** A workflow task */
     public static class WorkflowTask
     {
-	public enum State { PENDING, RUNNING, FINISHED };
+	public enum State { READY, RUNNING, FINISHED };
 
 	private String _description;
 	private int _totalTime;
@@ -68,7 +68,7 @@ public class WorkflowTimerService extends Service
 	{
 	    _description = description;
 	    _totalTime = length;
-	    _state = State.PENDING;
+	    _state = State.READY;
 	}
 
 	public State getState()
@@ -96,7 +96,7 @@ public class WorkflowTimerService extends Service
 	public void reset()
 	{
 	    _elapsedTime = 0;
-	    _state = State.PENDING;
+	    _state = State.READY;
 	}
 
     };
@@ -104,7 +104,7 @@ public class WorkflowTimerService extends Service
     /** A workflow */
     public static class Workflow
     {
-	public enum State { PENDING, RUNNING, FINISHED };
+	public enum State { UNINITIALIZED, READY, RUNNING, FINISHED };
 
 	private String _name;
 	private String _description;
@@ -115,6 +115,7 @@ public class WorkflowTimerService extends Service
 
 	public Workflow(Context ctx, String xml)
 	{
+	    _state = State.UNINITIALIZED;
 	    _name = ctx.getString(R.string.wft_unnamed);
 	    _description = "";
 	    _tasks = new ArrayList<WorkflowTask>();
@@ -160,11 +161,14 @@ public class WorkflowTimerService extends Service
 	/** Initialize workflow object from xml */
 	protected void initialize(String xml)
 	{
+	    /* use javax.xml.parsers.DocumentBuilderFactory */
 	    _name = "Demo workflow";
 	    _description = "A internal test workflow for testing and development.";
 	    _tasks.add(new WorkflowTask("Task 1", 5*1000));
 	    _tasks.add(new WorkflowTask("Task 2", 10*1000));
 	    _tasks.add(new WorkflowTask("Task 3", 5*1000));
+
+	    _state = State.READY;
 	}
     };
 
