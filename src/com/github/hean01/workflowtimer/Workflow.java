@@ -60,8 +60,6 @@ public class Workflow
 	if (_state == State.READY)
 	{
 	    _state = State.RUNNING;
-	    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY,
-								      _currentTask.name() + " started."));
 	}
 
 	_currentTask.clock(time);
@@ -85,10 +83,18 @@ public class Workflow
 	    if (_currentTask.timeLeft() <= 5*1000 &&
 		_currentTask.timeLeft() >= 1000 &&
 		(_currentTask.timeLeft() % 1000) == 0)
-		{
-		    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY,
-								      ""+(_currentTask.timeLeft()/1000)));
-		}
+	    {
+		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY,
+									  ""+(_currentTask.timeLeft()/1000)));
+	    }
+	    /* announce next task */
+	    else if(_currentTask.timeLeft() == 0 &&
+		    _currentTask.getState() != WorkflowTask.State.FINISHED)
+	    {
+		WorkflowTask task = _tasks.get(nidx);
+		Message msg = _serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY, task.name());
+		_serviceHandler.sendMessage(msg);
+	    }
 	}
 
 	if (_currentTask.getState() != WorkflowTask.State.FINISHED)
