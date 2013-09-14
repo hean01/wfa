@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.ListIterator;
+import java.util.Locale;
 
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.os.Binder;
 import android.os.IBinder;
@@ -17,13 +19,19 @@ import android.app.Service;
 import android.app.AlarmManager;
 import android.widget.Toast;
 
-public class WorkflowTimerService extends Service
+public class WorkflowTimerService extends Service implements TextToSpeech.OnInitListener
 {
+    public static final String TAG = "WorkflowTimerService";
     public static final int CLOCK_RESOLUTION_MS = 1000;
+
+    public static final int MSG_SAY = 1;
+
 
     private WorkflowManager _workflowManager;
     private Workflow _currentWorkflow;
     private static Timer _timer;
+    private boolean _useAudioFeedback = false;
+    private TextToSpeech _tts;
 
     /** Workflow manager */
     public static class WorkflowManager
@@ -133,13 +141,15 @@ public class WorkflowTimerService extends Service
 	private ArrayList<WorkflowTask> _tasks;
 	private ListIterator<WorkflowTask> _progressIterator;
 	private WorkflowTask _currentTask;
+	private Handler _serviceHandler;
 
-	public Workflow(Context ctx, String xml)
+	public Workflow(WorkflowTimerService service, String xml)
 	{
 	    _state = State.UNINITIALIZED;
-	    _name = ctx.getString(R.string.wft_unnamed);
+	    _name = service.getString(R.string.wft_unnamed);
 	    _description = "";
 	    _tasks = new ArrayList<WorkflowTask>();
+	    _serviceHandler = service.handler();
 
 	    initialize(xml);
 	}
@@ -177,13 +187,13 @@ public class WorkflowTimerService extends Service
 	    /* check if workflow has reached the end */
 	    if (!_progressIterator.hasNext())
 	    {
-		Log.d("test", "Reached end of workflow.");
+		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Reached end of workflow."));
 		_state = State.FINISHED;
 		return;
 	    }
 
 	    /* go to next task in workflow */
-	    Log.d("test", "Next task in workflow.");
+	    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Next task in workflow"));
 	    _currentTask = _progressIterator.next();
 	}
 
@@ -211,12 +221,20 @@ public class WorkflowTimerService extends Service
 
     private final IBinder _Binder = new WorkflowTimerBinder();
 
-    private final Handler _toastHandler = new Handler()
+    private final Handler _serviceHandler = new Handler()
     {
 	@Override
 	public void handleMessage(Message msg)
 	{
-	    Toast.makeText(getApplicationContext(), "Workflow has finished.", Toast.LENGTH_SHORT).show();
+	    switch(msg.what)
+	    {
+	    case MSG_SAY:
+		say((String)msg.obj);
+		break;
+	    default:
+		Log.w(TAG, "No handler for message code " + msg.what);
+		break;
+	    }
 	}
     };
 
@@ -234,7 +252,7 @@ public class WorkflowTimerService extends Service
 		_timer.cancel();
 		_timer = null;
 
-		_toastHandler.sendEmptyMessage(0);
+		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Workflow is finished."));
 	    }
 	}
     };
@@ -250,6 +268,8 @@ public class WorkflowTimerService extends Service
 	    return;
 	}
 
+	_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Starting workflow."));
+
 	/* start new workflow */
 	_currentWorkflow = _workflowManager.get(0);
 	_currentWorkflow.reset();
@@ -257,21 +277,55 @@ public class WorkflowTimerService extends Service
 	_timer = new Timer();
 	_timer.scheduleAtFixedRate(_clockTask, 0, WorkflowTimerService.CLOCK_RESOLUTION_MS);
 
-	Toast.makeText(this, "Workflow started", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onCreate()
     {
+	_tts = new TextToSpeech(this, this);
 	_workflowManager = new WorkflowManager(this);
+
 	Toast.makeText(this, R.string.wft_service_started, Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onDestroy() {
-	if (!(_timer == null))
+    public void onDestroy()
+    {
+	if (_timer != null)
 	    _timer.cancel();
+
+	if (_tts != null)
+	{
+	    _tts.stop();
+	    _tts.shutdown();
+	}
+
 	Toast.makeText(this, R.string.wft_service_stopped, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onInit(int status)
+    {
+	if (status != TextToSpeech.SUCCESS)
+	    return;
+
+	if (_tts.setLanguage(Locale.US) == TextToSpeech.LANG_NOT_SUPPORTED)
+	    return;
+
+	_useAudioFeedback = true;
+    }
+
+    public Handler handler()
+    {
+	return _serviceHandler;
+    }
+
+    public void say(String message)
+    {
+	if (!_useAudioFeedback)
+	    Log.i("WorkflowTimerService", message);
+	else
+	    _tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
     }
 
     @Override
