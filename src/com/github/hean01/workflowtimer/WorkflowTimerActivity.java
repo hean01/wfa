@@ -17,7 +17,7 @@ public class WorkflowTimerActivity extends Activity
 
     private ServiceConnection _serviceConn = new ServiceConnection() {
 	    public void onServiceConnected(ComponentName className, IBinder binder) {
-		_service = ((WorkflowTimerService.WorkflowTimerBinder) binder).getService();
+		_service = ((WorkflowTimerService.WorkflowTimerServiceBinder) binder).getService();
 		Toast.makeText(WorkflowTimerActivity.this, R.string.wft_service_connected,
 			       Toast.LENGTH_SHORT).show();
 
