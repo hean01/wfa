@@ -26,7 +26,6 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 
     public static final int MSG_SAY = 1;
 
-
     private WorkflowManager _workflowManager;
     private Workflow _currentWorkflow;
     private static Timer _timer;
@@ -83,14 +82,14 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
     {
 	public enum State { READY, RUNNING, FINISHED };
 
-	private String _description;
+	private String _name;
 	private int _totalTime;
 	private int _elapsedTime;
 	private State _state;
 
-	public WorkflowTask (String description, int length)
+	public WorkflowTask (String name, int length)
 	{
-	    _description = description;
+	    _name = name;
 	    _totalTime = length;
 	    _state = State.READY;
 	}
@@ -119,6 +118,12 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 	    }
 
 	    _elapsedTime += time;
+	}
+
+	/** get name of task */
+	public String name()
+	{
+	    return _name;
 	}
 
 	/** Reset the internal state of Worflow task */
@@ -160,6 +165,11 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 	    return (_state == State.FINISHED);
 	}
 
+	public WorkflowTask task()
+	{
+	    return _currentTask;
+	}
+
 	/** Reset the workflow */
 	public void reset()
 	{
@@ -193,8 +203,9 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 	    }
 
 	    /* go to next task in workflow */
-	    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Next task in workflow"));
 	    _currentTask = _progressIterator.next();
+	    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Next task: "+_currentTask.name()));
+
 	}
 
 	/** Initialize workflow object from xml */
@@ -268,11 +279,12 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 	    return;
 	}
 
-	_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Starting workflow."));
-
 	/* start new workflow */
 	_currentWorkflow = _workflowManager.get(0);
 	_currentWorkflow.reset();
+
+	_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Starting workflow with task:" + _currentWorkflow.task().name()));
+
 
 	_timer = new Timer();
 	_timer.scheduleAtFixedRate(_clockTask, 0, WorkflowTimerService.CLOCK_RESOLUTION_MS);
@@ -306,13 +318,14 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
     @Override
     public void onInit(int status)
     {
+	boolean result = true;
 	if (status != TextToSpeech.SUCCESS)
-	    return;
+	    result = false;
 
-	if (_tts.setLanguage(Locale.US) == TextToSpeech.LANG_NOT_SUPPORTED)
-	    return;
+	if (result && _tts.setLanguage(Locale.US) == TextToSpeech.LANG_NOT_SUPPORTED)
+	    result = false;
 
-	_useAudioFeedback = true;
+	_useAudioFeedback = result;
     }
 
     public Handler handler()
