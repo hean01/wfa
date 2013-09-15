@@ -16,6 +16,8 @@ import android.app.Service;
 import android.widget.Toast;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class WFAService extends Service implements TextToSpeech.OnInitListener
 {
@@ -32,6 +34,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     private TextToSpeech _tts;
     private SoundPool _sp;
     private int _soundBell;
+    private SharedPreferences _preferences;
 
     public class WFAServiceBinder extends Binder {
 	WFAService getService() {
@@ -49,10 +52,12 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	    switch(msg.what)
 	    {
 	    case MSG_SAY:
-		say((String)msg.obj);
+		if (_preferences.getBoolean("tts_feedback", false))
+		    say((String)msg.obj);
 		break;
 	    case MSG_PLAY_BELL:
-		_sp.play(_soundBell, 1.0f, 1.0f, 0, 0, 1.0f);
+		if (_preferences.getBoolean("bell_feedback", false))
+		    _sp.play(_soundBell, 1.0f, 1.0f, 0, 0, 1.0f);
 		break;
 	    default:
 		Log.w(TAG, "No handler for message code " + msg.what);
@@ -106,7 +111,10 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     @Override
     public void onCreate()
     {
+	_preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
 	_tts = new TextToSpeech(this, this);
+
 	_sp = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 	_soundBell = _sp.load(this, R.raw.bell, 1);
 	_workflowManager = new WorkflowManager(this);
@@ -145,6 +153,11 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     public Handler handler()
     {
 	return _serviceHandler;
+    }
+
+    public SharedPreferences preferences()
+    {
+	return _preferences;
     }
 
     public void say(String message)

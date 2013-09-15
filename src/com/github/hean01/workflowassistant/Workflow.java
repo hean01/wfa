@@ -6,6 +6,7 @@ import java.util.ListIterator;
 import android.util.Log;
 import android.os.Handler;
 import android.os.Message;
+import android.content.SharedPreferences;
 
 /** A workflow */
 public class Workflow
@@ -19,6 +20,7 @@ public class Workflow
     private ListIterator<WorkflowTask> _progressIterator;
     private WorkflowTask _currentTask;
     private Handler _serviceHandler;
+    private SharedPreferences _preferences;
 
     public Workflow(WFAService service, String xml)
     {
@@ -27,6 +29,7 @@ public class Workflow
 	_description = "";
 	_tasks = new ArrayList<WorkflowTask>();
 	_serviceHandler = service.handler();
+	_preferences = service.preferences();
 	initialize(xml);
     }
 
@@ -70,12 +73,15 @@ public class Workflow
 	{
 	    if ((_currentTask.length() >= (30*1000)) && (_currentTask.timeLeft() == (10*1000)))
 	    {
-		_serviceHandler.sendEmptyMessage(WFAService.MSG_PLAY_BELL);
-
 		WorkflowTask task = _tasks.get(nidx);
-		Message msg = _serviceHandler.obtainMessage(WFAService.MSG_SAY,
-							    task.name() + " starts in 10 seconds.");
-		_serviceHandler.sendMessage(msg);
+
+		if (_preferences.getBoolean("announce_next_task", false))
+		{
+		    _serviceHandler.sendEmptyMessage(WFAService.MSG_PLAY_BELL);
+		    Message msg = _serviceHandler.obtainMessage(WFAService.MSG_SAY,
+								task.name() + " starts in 10 seconds.");
+		    _serviceHandler.sendMessage(msg);
+		}
 	    }
 	}
 
@@ -86,9 +92,11 @@ public class Workflow
 		_currentTask.timeLeft() >= 1000 &&
 		(_currentTask.timeLeft() % 1000) == 0)
 	    {
-		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(WFAService.MSG_SAY,
-									  ""+(_currentTask.timeLeft()/1000)));
+		if (_preferences.getBoolean("countdown", false))
+		    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(WFAService.MSG_SAY,
+									      ""+(_currentTask.timeLeft()/1000)));
 	    }
+
 	    /* announce next task */
 	    else if(_currentTask.timeLeft() == 0 &&
 		    _currentTask.getState() != WorkflowTask.State.FINISHED)
