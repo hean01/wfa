@@ -21,6 +21,7 @@ public class WFAManagerActivity extends Activity
     private final static int MENU_OPTION_PROGRESS = 1;
 
     private WFAService _service;
+    private boolean _serviceIsBound;
 
     private ServiceConnection _serviceConn = new ServiceConnection() {
 	    public void onServiceConnected(ComponentName className, IBinder binder) {
@@ -40,16 +41,36 @@ public class WFAManagerActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 	setContentView(R.layout.splash);
-	bindService(new Intent(this, WFAService.class), _serviceConn, Context.BIND_AUTO_CREATE);
+	_serviceIsBound = false;
+
+	Intent i = new Intent(this, WFAService.class);
+	startService(i);
     }
 
     @Override
     protected void onDestroy()
     {
 	super.onDestroy();
+    }
 
-	/** unbind the service */
-	unbindService(_serviceConn);
+    @Override
+    protected void onPause()
+    {
+	super.onPause();
+	if (_serviceIsBound)
+	{
+	    unbindService(_serviceConn);
+	    _serviceIsBound = false;
+	}
+    }
+
+    @Override
+    protected void onResume()
+    {
+	super.onResume();
+	if (!_serviceIsBound)
+	    _serviceIsBound = bindService(new Intent(this, WFAService.class),
+					  _serviceConn, Context.BIND_AUTO_CREATE);
     }
 
     @Override

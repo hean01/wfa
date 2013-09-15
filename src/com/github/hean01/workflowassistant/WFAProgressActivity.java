@@ -14,6 +14,7 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
     private final static String TAG = "WFAProgressActivity"; 
     private WorkflowTask _currentTask;
     private WFAService _service;
+    private boolean _serviceIsBound;
 
     private ServiceConnection _serviceConn = new ServiceConnection() {
 	    public void onServiceConnected(ComponentName className, IBinder binder) {
@@ -44,7 +45,7 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-	bindService(new Intent(this, WFAService.class), _serviceConn, Context.BIND_AUTO_CREATE);
+	_serviceIsBound = false;
 	setContentView(R.layout.progress);
     }
 
@@ -53,4 +54,26 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
     {
 	super.onDestroy();
     }
+
+    @Override
+    protected void onPause()
+    {
+	super.onPause();
+	if (_serviceIsBound)
+	{
+	    _service.removeWorkflowObserver(WFAProgressActivity.this);
+	    unbindService(_serviceConn);
+	    _serviceIsBound = false;
+	}
+    }
+
+    @Override
+    protected void onResume()
+    {
+	super.onResume();
+	if (!_serviceIsBound)
+	    _serviceIsBound = bindService(new Intent(this, WFAService.class),
+					  _serviceConn, Context.BIND_AUTO_CREATE);
+    }
+
 }
