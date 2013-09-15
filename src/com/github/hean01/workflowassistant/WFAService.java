@@ -92,6 +92,14 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 
     private final ClockTask _clockTask = new ClockTask();
 
+    private void say(String message)
+    {
+	if (!_useAudioFeedback)
+	    Log.i(TAG, message);
+	else
+	    _tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+    }
+
     public void addWorkflowObserver(WorkflowObserver observer)
     {
 	if (_observers.contains(observer))
@@ -193,14 +201,6 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     public SharedPreferences preferences()
     {
 	return _preferences;
-    }
-
-    public void say(String message)
-    {
-	if (!_useAudioFeedback)
-	    Log.i(TAG, message);
-	else
-	    _tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
     }
 
     @Override
