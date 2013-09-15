@@ -1,4 +1,4 @@
-package com.github.hean01.workflowtimer;
+package com.github.hean01.workflowassistant;
 
 /** A workflow task */
 public class WorkflowTask

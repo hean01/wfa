@@ -1,4 +1,4 @@
-package com.github.hean01.workflowtimer;
+package com.github.hean01.workflowassistant;
 
 import java.lang.Thread;
 
@@ -14,17 +14,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.util.Log;
 
-public class WorkflowTimerActivity extends Activity
+public class WFAManagerActivity extends Activity
 {
-    private final static String TAG = "WorkflowTimerActivity";
+    private final static String TAG = "WFAManagerActivity";
     private final static int MENU_OPTION_PREFERENCES = 0;
 
-    private WorkflowTimerService _service;
+    private WFAService _service;
 
     private ServiceConnection _serviceConn = new ServiceConnection() {
 	    public void onServiceConnected(ComponentName className, IBinder binder) {
-		_service = ((WorkflowTimerService.WorkflowTimerServiceBinder) binder).getService();
-		Toast.makeText(WorkflowTimerActivity.this, R.string.wft_service_connected,
+		_service = ((WFAService.WFAServiceBinder) binder).getService();
+		Toast.makeText(WFAManagerActivity.this, R.string.wft_service_connected,
 			       Toast.LENGTH_SHORT).show();
 
 		setContentView(R.layout.manager);
@@ -33,7 +33,7 @@ public class WorkflowTimerActivity extends Activity
 
 	    public void onServiceDisconnected(ComponentName className) {
 		_service = null;
-		Toast.makeText(WorkflowTimerActivity.this, R.string.wft_service_disconnected,
+		Toast.makeText(WFAManagerActivity.this, R.string.wft_service_disconnected,
 			       Toast.LENGTH_SHORT).show();
 	    }
 	};
@@ -43,7 +43,7 @@ public class WorkflowTimerActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 	setContentView(R.layout.splash);
-	bindService(new Intent(this, WorkflowTimerService.class), _serviceConn, Context.BIND_AUTO_CREATE);
+	bindService(new Intent(this, WFAService.class), _serviceConn, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class WorkflowTimerActivity extends Activity
 	switch(item.getItemId())
 	{
 	case MENU_OPTION_PREFERENCES:
-	    startActivity(new Intent(this, WorkflowTimerPreferenceActivity.class));
+	    startActivity(new Intent(this, WFAPreferencesActivity.class));
 	    return true;
 
 	default:

@@ -1,5 +1,5 @@
 #+STARTUP: indent overview
-#+TITLE:     Workflow Internals
+#+TITLE:     Workflow Assistant - Internals
 #+AUTHOR:    Henrik Andersson
 #+EMAIL:     hean01 AT gmail.com
 #+DATE:      2013-09-14 Sat
@@ -15,20 +15,24 @@
 #+LINK_HOME: 
 #+XSLT:
 
-* Workflow Internals
+* Workflow Assistant - Internals
 ** Overview
 The application consist of two activities and a service. The service
 holds all logics and data where activities are simple viewers.  The
 two activities are managing of workflows and the progress of a current
 workflow.
 ** Classes
-*** WorkflowTimerActivity
+*** WFAManagerActivity
 This is the main activity, responsible to start the service and be the
 manager of workflows.
-*** WorkflowTimerProgressActivity
+*** WFAProgressActivity
 This activity is the visual progress of an ongoing workflow.
-*** WorkflowTimerService
-The service is the core of Workflow Timer, it holds all logics and data.
+*** WFAPreferencesActivity
+This activity shows the preferences of the application and extends the
+=android.preference.PreferenceActivity=. The preferences is defined in
+the resource =res/xml/preferences.xml=.
+*** WFAService
+The service is the core of /Workflow Assitant/, it holds all logics and data.
 *** Workflow
 A workflow consists of several tasks in a specific order. A workflow
 has a name, description and a state. States are /READY/, /RUNNING/ and
@@ -53,14 +57,17 @@ skinparam class {
   BorderColor Black
 }
 
-package com.github.hean01.workflowtimer {
-class WorkflowTimerService {
+package com.github.hean01.workflowassistant {
+class WFAService {
 }
 
-class WorkflowTimerActivity {
+class WFAManagerActivity {
 }
 
-class WorkflowTimerProgressActivity {
+class WFAPreferencesActivity {
+}
+
+class WFAProgressActivity {
 }
 
 class WorkflowManager {
@@ -87,11 +94,13 @@ class WorkflowTask {
 
 
 
-WorkflowTimerProgressActivity .. WorkflowTimerService
-WorkflowTimerActivity .. WorkflowTimerService
-WorkflowTimerActivity <|-- android.app.Activity
-WorkflowTimerService <|-- android.app.Service
-WorkflowTimerService o-- WorkflowManager
+WFAProgressActivity .. WFAService
+WFAManagerActivity .. WFAService
+WFAPreferencesActivity .. WFAManagerActivity
+WFAPreferencesActivity <|-- android.preference.PreferenceActivity
+WFAManagerActivity <|-- android.app.Activity
+WFAService <|-- android.app.Service
+WFAService o-- WorkflowManager
 WorkflowManager "1" o-- "0..*" Workflow
 Workflow "1" o-- "1..*" WorkflowTask
 

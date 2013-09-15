@@ -1,8 +1,8 @@
-Workflow Timer
-==============
+Workflow Assistant
+==================
 
-_Workflow Timer_ is an Android application to which assist you through
-a timed workflow for an example a cardio trainer passes, film
+_Workflow Assistant_ is an Android application to which assist you through
+a timed workflow for an example a cardio trainer pass, film
 developing processes etc.
 
 While progressing through a workflow the individual steps are

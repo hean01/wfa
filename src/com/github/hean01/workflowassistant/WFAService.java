@@ -1,4 +1,4 @@
-package com.github.hean01.workflowtimer;
+package com.github.hean01.workflowassistant;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,9 +17,9 @@ import android.widget.Toast;
 import android.media.AudioManager;
 import android.media.SoundPool;
 
-public class WorkflowTimerService extends Service implements TextToSpeech.OnInitListener
+public class WFAService extends Service implements TextToSpeech.OnInitListener
 {
-    public static final String TAG = "WorkflowTimerService";
+    public static final String TAG = "WFAService";
     public static final int CLOCK_RESOLUTION_MS = 1000;
 
     public static final int MSG_SAY = 1;
@@ -33,13 +33,13 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
     private SoundPool _sp;
     private int _soundBell;
 
-    public class WorkflowTimerServiceBinder extends Binder {
-	WorkflowTimerService getService() {
-	    return WorkflowTimerService.this;
+    public class WFAServiceBinder extends Binder {
+	WFAService getService() {
+	    return WFAService.this;
 	}
     };
 
-    private final IBinder _serviceBinder = new WorkflowTimerServiceBinder();
+    private final IBinder _serviceBinder = new WFAServiceBinder();
 
     private final Handler _serviceHandler = new Handler()
     {
@@ -66,7 +66,7 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 	public void run()
 	{
 	    /* clock the workflow */
-	    _currentWorkflow.clock(WorkflowTimerService.CLOCK_RESOLUTION_MS);
+	    _currentWorkflow.clock(WFAService.CLOCK_RESOLUTION_MS);
 
 	    /* check if workflow is finished */
 	    if (_currentWorkflow.isFinished())
@@ -99,7 +99,7 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
 
 
 	_timer = new Timer();
-	_timer.scheduleAtFixedRate(_clockTask, 0, WorkflowTimerService.CLOCK_RESOLUTION_MS);
+	_timer.scheduleAtFixedRate(_clockTask, 0, WFAService.CLOCK_RESOLUTION_MS);
 
     }
 
@@ -150,7 +150,7 @@ public class WorkflowTimerService extends Service implements TextToSpeech.OnInit
     public void say(String message)
     {
 	if (!_useAudioFeedback)
-	    Log.i("WorkflowTimerService", message);
+	    Log.i(TAG, message);
 	else
 	    _tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
     }

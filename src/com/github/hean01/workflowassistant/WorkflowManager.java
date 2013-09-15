@@ -1,4 +1,4 @@
-package com.github.hean01.workflowtimer;
+package com.github.hean01.workflowassistant;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -8,10 +8,10 @@ import java.io.File;
 /** Workflow manager */
 public class WorkflowManager
 {
-    private WorkflowTimerService _service;
+    private WFAService _service;
     private ArrayList<Workflow> _workflows;
 
-    public WorkflowManager(WorkflowTimerService service)
+    public WorkflowManager(WFAService service)
     {
 	_service = service;
 	_workflows = new ArrayList<Workflow>();

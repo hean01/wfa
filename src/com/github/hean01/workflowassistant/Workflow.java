@@ -1,4 +1,4 @@
-package com.github.hean01.workflowtimer;
+package com.github.hean01.workflowassistant;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -20,7 +20,7 @@ public class Workflow
     private WorkflowTask _currentTask;
     private Handler _serviceHandler;
 
-    public Workflow(WorkflowTimerService service, String xml)
+    public Workflow(WFAService service, String xml)
     {
 	_state = State.UNINITIALIZED;
 	_name = service.getString(R.string.wft_unnamed);
@@ -70,10 +70,10 @@ public class Workflow
 	{
 	    if ((_currentTask.length() >= (30*1000)) && (_currentTask.timeLeft() == (10*1000)))
 	    {
-		_serviceHandler.sendEmptyMessage(WorkflowTimerService.MSG_PLAY_BELL);
+		_serviceHandler.sendEmptyMessage(WFAService.MSG_PLAY_BELL);
 
 		WorkflowTask task = _tasks.get(nidx);
-		Message msg = _serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY,
+		Message msg = _serviceHandler.obtainMessage(WFAService.MSG_SAY,
 							    task.name() + " starts in 10 seconds.");
 		_serviceHandler.sendMessage(msg);
 	    }
@@ -86,16 +86,16 @@ public class Workflow
 		_currentTask.timeLeft() >= 1000 &&
 		(_currentTask.timeLeft() % 1000) == 0)
 	    {
-		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY,
+		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(WFAService.MSG_SAY,
 									  ""+(_currentTask.timeLeft()/1000)));
 	    }
 	    /* announce next task */
 	    else if(_currentTask.timeLeft() == 0 &&
 		    _currentTask.getState() != WorkflowTask.State.FINISHED)
 	    {
-		_serviceHandler.sendEmptyMessage(WorkflowTimerService.MSG_PLAY_BELL);
+		_serviceHandler.sendEmptyMessage(WFAService.MSG_PLAY_BELL);
 		WorkflowTask task = _tasks.get(nidx);
-		Message msg = _serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY, task.name());
+		Message msg = _serviceHandler.obtainMessage(WFAService.MSG_SAY, task.name());
 		_serviceHandler.sendMessage(msg);
 	    }
 	}
@@ -106,7 +106,7 @@ public class Workflow
 	/* check if workflow has reached the end */
 	if (!_progressIterator.hasNext())
 	{
-	    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(WorkflowTimerService.MSG_SAY,
+	    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(WFAService.MSG_SAY,
 								      "Reached end of workflow."));
 	    _state = State.FINISHED;
 	    return;

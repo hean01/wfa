@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.github.hean01.workflowtimer"
+      package="com.github.hean01.workflowassistant"
       android:versionCode="1"
       android:versionName="1.0">
 
     <application android:label="@string/app_name" android:icon="@drawable/icon">
 
-      <meta-data android:name="com.google.android.backup.api_key"
-		 android:value="AEdPqrEAAAAIsukoK2wHWoNY-CQNVNqvBjUc9cRl_D6j4thzaA" />
-
-      <activity android:name="WorkflowTimerActivity" android:label="@string/app_name">
+      <activity android:name="WFAManagerActivity" android:label="@string/app_name">
         <intent-filter>
           <action android:name="android.intent.action.MAIN" />
           <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
 
-      <activity android:name="WorkflowTimerPreferenceActivity" />
+      <activity android:name="WFAPreferencesActivity" />
 
-      <service android:name="WorkflowTimerService"
+      <service android:name="WFAService"
 	       android:label="@string/service_name">
       </service>
 

@@ -1,9 +1,9 @@
-package com.github.hean01.workflowtimer;
+package com.github.hean01.workflowassistant;
 
 import android.preference.PreferenceActivity;
 import android.os.Bundle;
 
-public class WorkflowTimerPreferenceActivity extends PreferenceActivity
+public class WFAPreferencesActivity extends PreferenceActivity
 {
     @Override
     public void onCreate(Bundle savedInstanceState)
