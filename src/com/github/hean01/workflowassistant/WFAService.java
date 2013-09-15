@@ -123,7 +123,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     public void runWorkflow()
     {
 	/* check if already running */
-	if (!(_timer == null))
+	if (_timer != null)
 	{
 	    Toast.makeText(this, "Workflow already in progress", Toast.LENGTH_SHORT).show();
 	    return;
