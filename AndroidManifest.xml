@@ -13,6 +13,7 @@
         </intent-filter>
       </activity>
 
+      <activity android:name="WFAProgressActivity" />
       <activity android:name="WFAPreferencesActivity" />
 
       <service android:name="WFAService"

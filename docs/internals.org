@@ -37,6 +37,8 @@ The service is the core of /Workflow Assitant/, it holds all logics and data.
 A workflow consists of several tasks in a specific order. A workflow
 has a name, description and a state. States are /READY/, /RUNNING/ and
 /FINISHED/.
+*** Workflow Observer
+This is a observer interface for a workflow.
 *** WorkflowTask
 A task has a description, length of time and a state. States are
 /READY/, /RUNNING/ and /FINISHED/.
@@ -84,6 +86,11 @@ class Workflow {
  # tasks : List<WorkflowTask>
 }
 
+interface WorkflowObserver {
+ + onTask(WorkflowTask)
+ + onChange(WorkflowTask)
+}
+
 class WorkflowTask {
   + description : String
   + isFinished() : boolean
@@ -99,9 +106,11 @@ WFAManagerActivity .. WFAService
 WFAPreferencesActivity .. WFAManagerActivity
 WFAPreferencesActivity <|-- android.preference.PreferenceActivity
 WFAManagerActivity <|-- android.app.Activity
+WorkflowObserver <|.. WFAProgressActivity
 WFAService <|-- android.app.Service
 WFAService o-- WorkflowManager
 WorkflowManager "1" o-- "0..*" Workflow
+Workflow "1" o-- "0..*" WorkflowObserver
 Workflow "1" o-- "1..*" WorkflowTask
 
 #+END_SRC

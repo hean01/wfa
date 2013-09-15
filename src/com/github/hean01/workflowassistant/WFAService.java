@@ -3,6 +3,9 @@ package com.github.hean01.workflowassistant;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Locale;
+import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
 
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -35,6 +38,8 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     private SoundPool _sp;
     private int _soundBell;
     private SharedPreferences _preferences;
+
+    private Set<WorkflowObserver> _observers;
 
     public class WFAServiceBinder extends Binder {
 	WFAService getService() {
@@ -87,6 +92,26 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 
     private final ClockTask _clockTask = new ClockTask();
 
+    public void addWorkflowObserver(WorkflowObserver observer)
+    {
+	if (_observers.contains(observer))
+	    return;
+
+	_observers.add(observer);
+	if (_currentWorkflow != null)
+	    _currentWorkflow.addObserver(observer);
+    }
+
+    public void removeWorkflowObserver(WorkflowObserver observer)
+    {
+	if (!_observers.contains(observer))
+	    return;
+
+	_observers.remove(observer);
+	if (_currentWorkflow != null)
+	    _currentWorkflow.removeObserver(observer);
+    }
+
     public void runWorkflow()
     {
 	/* check if already running */
@@ -100,6 +125,14 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	_currentWorkflow = _workflowManager.get(0);
 	_currentWorkflow.reset();
 
+	/* add observers */
+	for (Iterator<WorkflowObserver> it = _observers.iterator(); it.hasNext();)
+	{
+	    WorkflowObserver observer = it.next();
+	    _currentWorkflow.addObserver(observer);
+	}
+
+
 	_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Starting workflow with task:" + _currentWorkflow.task().name()));
 
 
@@ -111,6 +144,8 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     @Override
     public void onCreate()
     {
+	_observers = new HashSet<WorkflowObserver>();
+
 	_preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 	_tts = new TextToSpeech(this, this);

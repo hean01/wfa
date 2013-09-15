@@ -5,7 +5,6 @@ import java.lang.Thread;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.widget.Toast;
 import android.content.Intent;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -18,23 +17,21 @@ public class WFAManagerActivity extends Activity
 {
     private final static String TAG = "WFAManagerActivity";
     private final static int MENU_OPTION_PREFERENCES = 0;
+    private final static int MENU_OPTION_PROGRESS = 1;
 
     private WFAService _service;
 
     private ServiceConnection _serviceConn = new ServiceConnection() {
 	    public void onServiceConnected(ComponentName className, IBinder binder) {
 		_service = ((WFAService.WFAServiceBinder) binder).getService();
-		Toast.makeText(WFAManagerActivity.this, R.string.service_connected,
-			       Toast.LENGTH_SHORT).show();
-
+		Log.i(TAG, "Connected to service.");
 		setContentView(R.layout.manager);
 		_service.runWorkflow();
 	    }
 
 	    public void onServiceDisconnected(ComponentName className) {
 		_service = null;
-		Toast.makeText(WFAManagerActivity.this, R.string.service_disconnected,
-			       Toast.LENGTH_SHORT).show();
+		Log.i(TAG, "Disconnected from service.");
 	    }
 	};
 
@@ -58,7 +55,8 @@ public class WFAManagerActivity extends Activity
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-	menu.add(Menu.NONE, 0, 0, "Preferences");
+	menu.add(Menu.NONE, MENU_OPTION_PROGRESS, 0, "Progress");
+	menu.add(Menu.NONE, MENU_OPTION_PREFERENCES, 1, "Preferences");
 	return super.onCreateOptionsMenu(menu);
     }
 
@@ -69,6 +67,10 @@ public class WFAManagerActivity extends Activity
 	{
 	case MENU_OPTION_PREFERENCES:
 	    startActivity(new Intent(this, WFAPreferencesActivity.class));
+	    return true;
+
+	case MENU_OPTION_PROGRESS:
+	    startActivity(new Intent(this, WFAProgressActivity.class));
 	    return true;
 
 	default:

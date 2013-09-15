@@ -2,6 +2,9 @@ package com.github.hean01.workflowassistant;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import android.util.Log;
 import android.os.Handler;
@@ -21,6 +24,7 @@ public class Workflow
     private WorkflowTask _currentTask;
     private Handler _serviceHandler;
     private SharedPreferences _preferences;
+    private Set<WorkflowObserver> _observers;
 
     public Workflow(WFAService service, String xml)
     {
@@ -28,6 +32,7 @@ public class Workflow
 	_name = service.getString(R.string.unnamed);
 	_description = "";
 	_tasks = new ArrayList<WorkflowTask>();
+	_observers = new HashSet<WorkflowObserver>();
 	_serviceHandler = service.handler();
 	_preferences = service.preferences();
 	initialize(xml);
@@ -66,6 +71,7 @@ public class Workflow
 	}
 
 	_currentTask.clock(time);
+	notifyOnTaskChange();
 
 	/* notify about next task if near end of current task */
 	int nidx = _progressIterator.nextIndex();
@@ -122,7 +128,41 @@ public class Workflow
 
 	/* go to next task in workflow */
 	_currentTask = _progressIterator.next();
+	notifyOnNewTask();
     }
+
+    /** add an observer of workflow */
+    public void addObserver(WorkflowObserver observer)
+    {
+	_observers.add(observer);
+    }
+
+    /** remove an observer of workflow */
+    public void removeObserver(WorkflowObserver observer)
+    {
+	_observers.remove(observer);
+    }
+
+    /** notify observers of onTask() */
+    public void notifyOnNewTask()
+    {
+	for (Iterator<WorkflowObserver> it = _observers.iterator(); it.hasNext();)
+	{
+	    WorkflowObserver observer = it.next();
+	    observer.onTask(_currentTask);
+	}
+    }
+
+    /** notify observers of onChange() */
+    public void notifyOnTaskChange()
+    {
+	for (Iterator<WorkflowObserver> it = _observers.iterator(); it.hasNext();)
+	{
+	    WorkflowObserver observer = it.next();
+	    observer.onChange(_currentTask);
+	}
+    }
+
 
     /** Initialize workflow object from xml */
     protected void initialize(String xml)
