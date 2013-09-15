@@ -24,7 +24,7 @@ public class WFAManagerActivity extends Activity
     private ServiceConnection _serviceConn = new ServiceConnection() {
 	    public void onServiceConnected(ComponentName className, IBinder binder) {
 		_service = ((WFAService.WFAServiceBinder) binder).getService();
-		Toast.makeText(WFAManagerActivity.this, R.string.wft_service_connected,
+		Toast.makeText(WFAManagerActivity.this, R.string.service_connected,
 			       Toast.LENGTH_SHORT).show();
 
 		setContentView(R.layout.manager);
@@ -33,7 +33,7 @@ public class WFAManagerActivity extends Activity
 
 	    public void onServiceDisconnected(ComponentName className) {
 		_service = null;
-		Toast.makeText(WFAManagerActivity.this, R.string.wft_service_disconnected,
+		Toast.makeText(WFAManagerActivity.this, R.string.service_disconnected,
 			       Toast.LENGTH_SHORT).show();
 	    }
 	};

@@ -33,7 +33,7 @@ public class WorkflowManager
 	    if (!file.isFile())
 		continue;
 
-	    if (!file.getName().endsWith(".wft"))
+	    if (!file.getName().endsWith(".wfa"))
 		continue;
 
 	    load(file);

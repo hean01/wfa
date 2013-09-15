@@ -119,7 +119,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	_soundBell = _sp.load(this, R.raw.bell, 1);
 	_workflowManager = new WorkflowManager(this);
 
-	Toast.makeText(this, R.string.wft_service_started, Toast.LENGTH_SHORT).show();
+	Toast.makeText(this, R.string.service_started, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -134,7 +134,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	    _tts.shutdown();
 	}
 
-	Toast.makeText(this, R.string.wft_service_stopped, Toast.LENGTH_SHORT).show();
+	Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_SHORT).show();
     }
 
     @Override

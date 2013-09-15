@@ -2,9 +2,9 @@
 <resources>
     <string name="app_name">Workflow Assistant</string>
     <string name="service_name">Workflow Assistant Service</string>
-    <string name="wft_unnamed">Unnamed</string>
-    <string name="wft_service_started">Workflow Assistant service has started.</string>
-    <string name="wft_service_stopped">Workflow Assistant service has stopped.</string>
-    <string name="wft_service_connected">Connected to Workflow Assistant service.</string>
-    <string name="wft_service_disconnected">Disconnected from Workflow Assistant service.</string>
+    <string name="unnamed">Unnamed</string>
+    <string name="service_started">Workflow Assistant service has started.</string>
+    <string name="service_stopped">Workflow Assistant service has stopped.</string>
+    <string name="service_connected">Connected to Workflow Assistant service.</string>
+    <string name="service_disconnected">Disconnected from Workflow Assistant service.</string>
 </resources>

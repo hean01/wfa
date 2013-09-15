@@ -25,7 +25,7 @@ public class Workflow
     public Workflow(WFAService service, String xml)
     {
 	_state = State.UNINITIALIZED;
-	_name = service.getString(R.string.wft_unnamed);
+	_name = service.getString(R.string.unnamed);
 	_description = "";
 	_tasks = new ArrayList<WorkflowTask>();
 	_serviceHandler = service.handler();
