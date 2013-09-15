@@ -68,6 +68,7 @@ public class Workflow
 	if (_state == State.READY)
 	{
 	    _state = State.RUNNING;
+	    notifyOnNewTask();
 	}
 
 	_currentTask.clock(time);

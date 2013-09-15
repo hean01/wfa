@@ -12,9 +12,9 @@ import android.content.ComponentName;
 public class WFAProgressActivity extends Activity implements WorkflowObserver
 {
     private final static String TAG = "WFAProgressActivity"; 
-    private WorkflowTask _currentTask;
     private WFAService _service;
     private boolean _serviceIsBound;
+    private ProgressView _view;
 
     private ServiceConnection _serviceConn = new ServiceConnection() {
 	    public void onServiceConnected(ComponentName className, IBinder binder) {
@@ -33,12 +33,27 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
     {
 	/* update view with current task info */
 	Log.w(TAG, "Task " + task.name() + " has changed...");
+	runOnUiThread(new Runnable() {
+		@Override
+		public void run() {
+		    _view.update();
+		}
+	    });
     }
 
     public void onTask(WorkflowTask task)
     {
 	/* update view with new task */
 	Log.w(TAG, "Starting new task " + task.name());
+
+	_view.newTask(task);
+
+	runOnUiThread(new Runnable() {
+		@Override
+		public void run() {
+		    _view.update();
+		}
+	    });
     }
     
     @Override
@@ -46,7 +61,8 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
     {
         super.onCreate(savedInstanceState);
 	_serviceIsBound = false;
-	setContentView(R.layout.progress);
+	_view = new ProgressView(this);
+	setContentView(_view);
     }
 
     @Override
