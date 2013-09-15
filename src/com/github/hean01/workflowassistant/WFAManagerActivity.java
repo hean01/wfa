@@ -11,6 +11,7 @@ import android.content.ServiceConnection;
 import android.content.ComponentName;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.util.Log;
 
 public class WFAManagerActivity extends Activity
@@ -26,7 +27,6 @@ public class WFAManagerActivity extends Activity
 		_service = ((WFAService.WFAServiceBinder) binder).getService();
 		Log.i(TAG, "Connected to service.");
 		setContentView(R.layout.manager);
-		_service.runWorkflow();
 	    }
 
 	    public void onServiceDisconnected(ComponentName className) {
@@ -78,5 +78,10 @@ public class WFAManagerActivity extends Activity
 	}
 
 	return false;
+    }
+
+    public void onStartButtonClick(View view)
+    {
+	_service.runWorkflow();
     }
 }

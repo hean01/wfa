@@ -15,5 +15,12 @@ Workflow manager
     android:layout_height="wrap_content" 
     android:text="Workflow Manager"
     />
+<Button
+    android:id="@+id/start"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:text="Start workflow"
+    android:onClick="onStartButtonClick"
+    />
 </LinearLayout>
 
