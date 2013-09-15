@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory 
+      android:title="Audible Feedback"
+      android:key="audible_feedback">
+
+
+    <CheckBoxPreference 
+        android:key="tts_feedback"
+        android:summary="Enable or disable the use of text-to-speak feedback"
+        android:title="Enable Text-To-Speech" 
+        android:defaultValue="true"
+        />
+
+    <CheckBoxPreference 
+        android:key="bell_feedback"
+        android:summary="Enable or disable the use of bell sound"
+        android:title="Enable bell" 
+        android:defaultValue="true"
+        />
+
+    <CheckBoxPreference 
+        android:key="countdown"
+        android:summary="Enable or disable countdown"
+        android:title="Enable countdown" 
+        android:defaultValue="true"
+        />
+
+    <CheckBoxPreference 
+        android:key="announce_next_task"
+        android:summary="Enable or disable the announcement of next task"
+        android:title="Announce next task" 
+        android:defaultValue="true"
+        />
+  </PreferenceCategory>
+</PreferenceScreen>
