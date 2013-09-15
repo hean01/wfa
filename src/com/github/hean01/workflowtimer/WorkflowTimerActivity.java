@@ -10,9 +10,15 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.ComponentName;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.util.Log;
 
 public class WorkflowTimerActivity extends Activity
 {
+    private final static String TAG = "WorkflowTimerActivity";
+    private final static int MENU_OPTION_PREFERENCES = 0;
+
     private WorkflowTimerService _service;
 
     private ServiceConnection _serviceConn = new ServiceConnection() {
@@ -47,5 +53,28 @@ public class WorkflowTimerActivity extends Activity
 
 	/** unbind the service */
 	unbindService(_serviceConn);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+	menu.add(Menu.NONE, 0, 0, "Preferences");
+	return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+	switch(item.getItemId())
+	{
+	case MENU_OPTION_PREFERENCES:
+	    startActivity(new Intent(this, WorkflowTimerPreferenceActivity.class));
+	    return true;
+
+	default:
+	    Log.w(TAG, "Unhandled menu option " + item.getItemId() + ".");
+	}
+
+	return false;
     }
 }

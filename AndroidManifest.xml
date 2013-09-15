@@ -16,6 +16,8 @@
         </intent-filter>
       </activity>
 
+      <activity android:name="WorkflowTimerPreferenceActivity" />
+
       <service android:name="WorkflowTimerService"
 	       android:label="@string/service_name">
       </service>
