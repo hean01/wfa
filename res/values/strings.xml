@@ -5,6 +5,4 @@
     <string name="unnamed">Unnamed</string>
     <string name="service_started">Workflow Assistant service has started.</string>
     <string name="service_stopped">Workflow Assistant service has stopped.</string>
-    <string name="service_connected">Connected to Workflow Assistant service.</string>
-    <string name="service_disconnected">Disconnected from Workflow Assistant service.</string>
 </resources>
