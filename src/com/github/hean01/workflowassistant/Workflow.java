@@ -62,6 +62,12 @@ public class Workflow
 	_state = State.READY;
     }
 
+    /** Get array of tasks */
+    public ArrayList<WorkflowTask> tasks()
+    {
+	return _tasks;
+    }
+
     /** Clock the workflow */
     public void clock(int time)
     {
