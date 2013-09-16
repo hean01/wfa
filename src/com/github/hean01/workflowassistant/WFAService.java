@@ -30,6 +30,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     public static final int MSG_SAY = 1;
     public static final int MSG_PLAY_BELL = 2;
 
+    private int _refCount;
     private WorkflowManager _workflowManager;
     private Workflow _currentWorkflow;
     private static Timer _timer;
@@ -86,6 +87,10 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 		_timer = null;
 
 		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Workflow is completed."));
+
+		/* if not bound to activity stop service */
+		if (_refCount == 0)
+		    shutdown();
 	    }
 	}
     };
@@ -203,8 +208,25 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	return _preferences;
     }
 
+    private void shutdown()
+    {
+	stopSelf();
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
+	_refCount++;
 	return _serviceBinder;
     }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+	_refCount--;
+
+	if (_refCount == 0 && _timer == null)
+	    shutdown();
+
+	return false;
+    }
+
 }
