@@ -34,7 +34,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     private WorkflowManager _workflowManager;
     private Workflow _currentWorkflow;
     private static Timer _timer;
-    private boolean _useAudioFeedback = false;
+    private boolean _useTextToSpeech = false;
     private TextToSpeech _tts;
     private SoundPool _sp;
     private int _soundBell;
@@ -79,7 +79,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	    /* clock the workflow */
 	    _currentWorkflow.clock(WFAService.CLOCK_RESOLUTION_MS);
 
-	    /* check if workflow is finished */
+	    /* check if workflow is finished and cleanup */
 	    if (_currentWorkflow.isFinished())
 	    {
 		_currentWorkflow = null;
@@ -97,30 +97,37 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 
     private final ClockTask _clockTask = new ClockTask();
 
+    /** Speak message using TextToSpeech */
     private void say(String message)
     {
-	if (!_useAudioFeedback)
-	    Log.i(TAG, message);
-	else
+	if (_useTextToSpeech)
 	    _tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+	else
+	    Log.i(TAG, message);
     }
 
+    /** Register a WorkflowObserver with the service */
     public void addWorkflowObserver(WorkflowObserver observer)
     {
 	if (_observers.contains(observer))
 	    return;
 
 	_observers.add(observer);
+
+	/* Add to current workflow is exists */
 	if (_currentWorkflow != null)
 	    _currentWorkflow.addObserver(observer);
     }
 
+    /** Unregister a WorkflowObserver from the service */
     public void removeWorkflowObserver(WorkflowObserver observer)
     {
 	if (!_observers.contains(observer))
 	    return;
 
 	_observers.remove(observer);
+
+	/* Remove from current workflow is in use */
 	if (_currentWorkflow != null)
 	    _currentWorkflow.removeObserver(observer);
     }
@@ -185,6 +192,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_SHORT).show();
     }
 
+    /** Callback from TextToSpeech service when initialized */
     @Override
     public void onInit(int status)
     {
@@ -195,14 +203,16 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	if (result && _tts.setLanguage(Locale.US) == TextToSpeech.LANG_NOT_SUPPORTED)
 	    result = false;
 
-	_useAudioFeedback = result;
+	_useTextToSpeech = result;
     }
 
+    /** get the service handler */
     public Handler handler()
     {
 	return _serviceHandler;
     }
 
+    /** get shared preferences */
     public SharedPreferences preferences()
     {
 	return _preferences;
@@ -215,6 +225,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 
     @Override
     public IBinder onBind(Intent intent) {
+	/* keep track on each bind to know when to shutdown service */
 	_refCount++;
 	return _serviceBinder;
     }
@@ -223,6 +234,8 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     public boolean onUnbind(Intent intent) {
 	_refCount--;
 
+	/* Shutdown service if this was the last unbind and we are not
+	 * currently running a workflow */
 	if (_refCount == 0 && _timer == null)
 	    shutdown();
 
