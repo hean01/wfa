@@ -218,6 +218,12 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	return _preferences;
     }
 
+    /** get current workflow */
+    public Workflow workflow()
+    {
+	return _currentWorkflow;
+    }
+
     private void shutdown()
     {
 	stopSelf();
