@@ -28,13 +28,10 @@ public class WorkflowTask
 	if (_state == State.READY)
 	    _state = State.RUNNING;
 	
-	if (_elapsedTime >= _totalTime)
-	{
-	    _state = State.FINISHED;
-	    return;
-	}
-
 	_elapsedTime += time;
+
+	if (_elapsedTime >= _totalTime)
+	    _state = State.FINISHED;
     }
 
     /** get name of task */
