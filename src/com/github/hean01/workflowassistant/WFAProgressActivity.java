@@ -21,6 +21,10 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
 		_service = ((WFAService.WFAServiceBinder) binder).getService();
 		Log.i(TAG, "Connected to service.");
 		_service.addWorkflowObserver(WFAProgressActivity.this);
+
+		_view = new ProgressView(WFAProgressActivity.this, _service.workflow());
+		setContentView(_view);
+
 	     }
 
 	    public void onServiceDisconnected(ComponentName className) {
@@ -32,7 +36,6 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
     public void onChange(WorkflowTask task)
     {
 	/* update view with current task info */
-	Log.w(TAG, "Task " + task.name() + " has changed...");
 	runOnUiThread(new Runnable() {
 		@Override
 		public void run() {
@@ -43,15 +46,11 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
 
     public void onTask(WorkflowTask task)
     {
-	/* update view with new task */
-	Log.w(TAG, "Starting new task " + task.name());
-
-	_view.newTask(task);
-
+	/* advanced to next task */
 	runOnUiThread(new Runnable() {
 		@Override
 		public void run() {
-		    _view.update();
+		    _view.nextTask();
 		}
 	    });
     }
@@ -61,8 +60,6 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
     {
         super.onCreate(savedInstanceState);
 	_serviceIsBound = false;
-	_view = new ProgressView(this);
-	setContentView(_view);
     }
 
     @Override

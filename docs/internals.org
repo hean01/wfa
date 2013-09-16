@@ -49,6 +49,8 @@ Workflow objects.
 *** ProgressView
 This class implements the actual progress view which is shown in
 WFAProgressActivity.
+*** WorkflowTaskView
+View of an workflow task.
 ** Classdiagram
 
 #+HEADER: :file class_diagram.svg
@@ -77,6 +79,12 @@ class WFAProgressActivity {
 }
 
 class ProgressView {
+ + nextTask()
+ + update()
+}
+
+class WorkflowTaskView {
+ + update()
 }
 
 class WorkflowManager {
@@ -128,8 +136,10 @@ WFAService <|-- android.app.Service
 WFAService o-- WorkflowManager
 WFAService o-- android.preference.SharedPreferences : _preferences
 WorkflowManager "1" o-- "0..*" Workflow
-Workflow "1" o-- "0..*" WorkflowObserver : _observers
+Workflow "1" o-- "*" WorkflowObserver : _observers
 Workflow "1" o-- "1..*" WorkflowTask : _tasks
 Workflow o-- android.preference.SharedPreferences : _preferences
-ProgressView <|-- android.graphics.View
+ProgressView o-- "*" WorkflowTaskView
+ProgressView <|-- android.widget.LinearLayout
+WorkflowTaskView <|-- android.widget.LinearLayout
 #+END_SRC

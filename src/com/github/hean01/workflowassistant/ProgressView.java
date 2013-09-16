@@ -1,64 +1,107 @@
 package com.github.hean01.workflowassistant;
 
-import android.util.AttributeSet;
-import android.view.View;
+import java.util.Iterator;
+
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.content.Context;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.Gravity;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.LinearLayout;
 
-public class ProgressView extends View
+public class ProgressView extends LinearLayout
 {
-    private Paint _textPaint;
-    private Paint _backgroundPaint;
-    private String _time = new String();
-    WorkflowTask _currentTask;
 
-    public ProgressView(Context context)
+    private int _currentTaskIndex;
+
+    /** Workflow task item */
+    public static class WorkflowTaskView extends LinearLayout
     {
-	super(context);
+	TextView _time;
+	TextView _name;
+	WorkflowTask _task;
 
-	_textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-	_textPaint.setColor(0xe0ffffff);
+	public WorkflowTaskView(Context context, WorkflowTask task) {
+	    super(context);
+	    _task = task;
 
+	    setOrientation(VERTICAL);
+	    setBackgroundColor(0xff308020);
+
+	    _time = new TextView(context);
+	    _time.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 60);
+	    _time.setGravity(Gravity.CENTER);
+
+	    _time.setText("00:00:00");
+	    addView(_time);
+
+	    _name = new TextView(context);
+	    _name.setText(_task.name());
+	    _name.setGravity(Gravity.CENTER);
+	    _name.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
+	    addView(_name);
+
+	    /* update view of task */
+	    update();
+	}
+
+	public void update()
+	{
+	    int s = _task.timeLeft()/1000;
+	    int m = s/60;
+	    int h = m/60;
+	    m -= h*60;
+	    s -= m*60;
+	    String time = new String();
+	    time = time.format("%02d:%02d:%02d", h, m, s);
+	    _time.setText(time);
+
+	    if (_task.getState() == WorkflowTask.State.FINISHED)
+	    {
+		_name.setTextColor(0x40e0e0e0);
+		_time.setTextColor(0x40e0e0e0);
+		setBackgroundColor(0x40308020);
+	    }
+	    else if (_task.getState() == WorkflowTask.State.RUNNING)
+	    {
+		_name.setTextColor(0xffe0e0e0);
+		_time.setTextColor(0xffe0e0e0);
+		setBackgroundColor(0xff308030);
+	    }
+	    else
+	    {
+		_name.setTextColor(0x7fe0e0e0);
+		_time.setTextColor(0x7fe0e0e0);
+		setBackgroundColor(0x7f308020);
+	    }
+
+	}
     }
 
-    public void newTask(WorkflowTask task)
+    public ProgressView(Context context, Workflow workflow)
     {
-	_currentTask = task;
+	super(context);
+	setOrientation(VERTICAL);
+	_currentTaskIndex = 0;
+	for (Iterator<WorkflowTask> it = workflow.tasks().iterator(); it.hasNext();)
+	{
+	    WorkflowTask task = it.next();
+	    addView(new WorkflowTaskView(context,task));
+	}
+    }
+
+    public void nextTask()
+    {
+	_currentTaskIndex++;
+	update();
     }
 
     public void update()
     {
-	if (_currentTask == null)
-	    return;
-
-	int h,m,s;
-
-	s = _currentTask.timeLeft()/1000;
-	m = s / 60;
-	h = m / 60;
-	m -= h*60;
-	s -= m*60;
-
-	_time = _time.format("%2d:%2d:%2d", h, m, s);
-
-	invalidate();
+	WorkflowTaskView tv = (WorkflowTaskView)getChildAt(_currentTaskIndex);
+	tv.update();
     }
-
-    @Override
-    protected void onDraw(Canvas canvas)
-    {
-	super.onDraw(canvas);
-
-	if (_currentTask == null)
-	    return;
-
-	/* draw timer */
-	_textPaint.setTextSize(80);
-	canvas.drawText(_time, 0, 120, _textPaint);
-
-	_textPaint.setTextSize(40);
-	canvas.drawText(_currentTask.name(), 0, 200, _textPaint);
-
-    }    
 }
