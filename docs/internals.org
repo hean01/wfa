@@ -46,9 +46,13 @@ A task has a description, length of time and a state. States are
 The workflow manager is responsible for loading, storing of
 workflows. This class is the only class responsible for instantiating
 Workflow objects.
+*** ProgressView
+This class implements the actual progress view which is shown in
+WFAProgressActivity.
 ** Classdiagram
 
-#+BEGIN_SRC plantuml :file class_diagram.svg
+#+HEADER: :file class_diagram.svg
+#+BEGIN_SRC plantuml
 skinparam backgroundColor #FFFFFF
 hide circle
 
@@ -72,6 +76,9 @@ class WFAPreferencesActivity {
 class WFAProgressActivity {
 }
 
+class ProgressView {
+}
+
 class WorkflowManager {
   + initialize()
   # workflows : List<Workflow>
@@ -81,9 +88,17 @@ class Workflow {
  + initialize(String)
  + clock(int)
  + reset()
+ + isFinished() : boolean
+ + task() : WorkflowTask
+ + addObserver(WorkflowObserver)
+ + removeObserver(WorkflowObserver)
+ + notifyObserversOnChange()
  + name : String
  + description : String
- # tasks : List<WorkflowTask>
+ # notifyObserverOnNewTask()
+ # notifyObserverOnTaskChange()
+ - _observers : HashSet
+ - _tasks : List<WorkflowTask>
 }
 
 interface WorkflowObserver {
@@ -102,15 +117,19 @@ class WorkflowTask {
 
 
 WFAProgressActivity .. WFAService
+WFAProgressActivity o-- ProgressView
 WFAManagerActivity .. WFAService
 WFAPreferencesActivity .. WFAManagerActivity
 WFAPreferencesActivity <|-- android.preference.PreferenceActivity
+WFAPreferencesActivity o-- android.preference.SharedPreferences : _preferences
 WFAManagerActivity <|-- android.app.Activity
 WorkflowObserver <|.. WFAProgressActivity
 WFAService <|-- android.app.Service
 WFAService o-- WorkflowManager
+WFAService o-- android.preference.SharedPreferences : _preferences
 WorkflowManager "1" o-- "0..*" Workflow
-Workflow "1" o-- "0..*" WorkflowObserver
-Workflow "1" o-- "1..*" WorkflowTask
-
+Workflow "1" o-- "0..*" WorkflowObserver : _observers
+Workflow "1" o-- "1..*" WorkflowTask : _tasks
+Workflow o-- android.preference.SharedPreferences : _preferences
+ProgressView <|-- android.graphics.View
 #+END_SRC
