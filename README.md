@@ -22,35 +22,35 @@ example.
 	<xml>
 		<workflow name="Rodinal, Full stand, 2x acros 100">
 			<description>8ml Fomadon R09, 1:125 (1L developer)</description>
-			<steps>
-				<step name="Fill water" time="30s"/>
-				<step name="Presoak" time="3m30s" />
-				<step name="Empty water" time="30s" />
-				<step name="Fill developer" time="30s" />
-				<step name="Agitate" time="30s" />
-				<step name="Full stand" time="59m" />
-				<step name="Empty developer" time="30s" />
-				<step name="Fill water" time="30s" />
-				<step name="Inverse 3 times" time="5s" />
-				<step name="Empty water" time="30s" />
-				<step name="Fill water" time="30s" />
-				<step name="Inverse 3 times" time="5s" />
-				<step name="Empty water" time="30s" />
-				<step name="Fill water" time="30s" />
-				<step name="Inverse 3 times" time="5s" />
-				<step name="Empty water" time="30s" />
-				<step name="Fill water" time="30s" />
-				<step name="Inverse 3 times" time="5s" />
-				<step name="Empty water" time="30s" />
-				<step name="Fill water" time="30s" />
-				<step name="Inverse 3 times" time="5s" />
-				<step name="Empty water" time="30s" />
-				<step name="Fill fix" time="30s" />
-				<step name="Inverse 3 times" time="5s" />
-				<step name="Fixing" time="3m25s" />
-				<step name="Empty fix" time="30s" />
-				<step name="Ilford wash"/>
-			</steps>
+			<tasks>
+				<task name="Fill water" time="30s"/>
+				<task name="Presoak" time="3m30s" />
+				<task name="Empty water" time="30s" />
+				<task name="Fill developer" time="30s" />
+				<task name="Agitate" time="30s" />
+				<task name="Full stand" time="59m" />
+				<task name="Empty developer" time="30s" />
+				<task name="Fill water" time="30s" />
+				<task name="Inverse 3 times" time="5s" />
+				<task name="Empty water" time="30s" />
+				<task name="Fill water" time="30s" />
+				<task name="Inverse 3 times" time="5s" />
+				<task name="Empty water" time="30s" />
+				<task name="Fill water" time="30s" />
+				<task name="Inverse 3 times" time="5s" />
+				<task name="Empty water" time="30s" />
+				<task name="Fill water" time="30s" />
+				<task name="Inverse 3 times" time="5s" />
+				<task name="Empty water" time="30s" />
+				<task name="Fill water" time="30s" />
+				<task name="Inverse 3 times" time="5s" />
+				<task name="Empty water" time="30s" />
+				<task name="Fill fix" time="30s" />
+				<task name="Inverse 3 times" time="5s" />
+				<task name="Fixing" time="3m25s" />
+				<task name="Empty fix" time="30s" />
+				<task name="Ilford wash"/>
+			</tasks>
 		</workflow>
 	</xml>
 

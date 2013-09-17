@@ -50,9 +50,9 @@ public class ProgressView extends LinearLayout
 
 	public void update()
 	{
-	    int s = _task.timeLeft()/1000;
-	    int m = s/60;
-	    int h = m/60;
+	    long s = _task.timeLeft()/1000;
+	    long m = s/60;
+	    long h = m/60;
 	    m -= h*60;
 	    s -= m*60;
 	    String time = new String();

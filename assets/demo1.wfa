@@ -1,0 +1,10 @@
+<workflow name="Demo Workflow 1">
+  <description>This demo workflow has 5 tasks with a total time of one minute.</description>
+  <tasks>
+    <task name="Jump" time="00:00:10"/>
+    <task name="Push" time="00:00:20"/>
+    <task name="Bend" time="00:00:10"/>
+    <task name="Bow" time="00:00:15"/>
+    <task name="Die" time="00:00:05"/>
+  </tasks>
+</workflow>

@@ -1,19 +1,25 @@
 package com.github.hean01.workflowassistant;
 
+import java.lang.Exception;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+
 /** A workflow task */
 public class WorkflowTask
 {
     public enum State { READY, RUNNING, FINISHED };
 
     private String _name;
-    private int _totalTime;
-    private int _elapsedTime;
+    private long _totalTime;
+    private long _elapsedTime;
     private State _state;
 
-    public WorkflowTask (String name, int length)
+    public WorkflowTask (String name, String length) throws ParseException
     {
 	_name = name;
-	_totalTime = length;
+	_totalTime = parseTime(length);
 	_state = State.READY;
     }
 
@@ -40,12 +46,12 @@ public class WorkflowTask
 	return _name;
     }
 
-    public int length()
+    public long length()
     {
 	return _totalTime;
     }
 
-    public int timeLeft()
+    public long timeLeft()
     {
 	return (_totalTime - _elapsedTime);
     }
@@ -55,5 +61,12 @@ public class WorkflowTask
     {
 	_elapsedTime = 0;
 	_state = State.READY;
-    }    
+    }
+
+    private long parseTime(String time) throws ParseException
+    {
+	DateFormat fmt = new SimpleDateFormat("hh:mm:ss");
+	Date date = fmt.parse(time);
+	return date.getTime();
+    }
 };

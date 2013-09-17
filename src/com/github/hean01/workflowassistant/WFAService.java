@@ -141,6 +141,13 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	    return;
 	}
 
+	/* Do we have any workflows loaded */
+	if (_workflowManager.size() == 0)
+	{
+	    Toast.makeText(this, "No workflows available", Toast.LENGTH_SHORT).show();
+	    return;
+	}
+
 	/* start new workflow */
 	_currentWorkflow = _workflowManager.get(0);
 	_currentWorkflow.reset();

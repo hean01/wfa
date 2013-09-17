@@ -26,7 +26,7 @@ public class Workflow
     private SharedPreferences _preferences;
     private Set<WorkflowObserver> _observers;
 
-    public Workflow(WFAService service, String xml)
+    public Workflow(WFAService service)
     {
 	_state = State.UNINITIALIZED;
 	_name = service.getString(R.string.unnamed);
@@ -35,7 +35,28 @@ public class Workflow
 	_observers = new HashSet<WorkflowObserver>();
 	_serviceHandler = service.handler();
 	_preferences = service.preferences();
-	initialize(xml);
+    }
+
+    public void name(String name)
+    {
+	_name = name;
+    }
+
+    public void description(String description)
+    {
+	_description = description;
+    }
+
+    public void addTask(WorkflowTask task)
+    {
+	_tasks.add(task);
+    }
+
+    /* finalizes the workflow */
+    public void finalize()
+    {
+	_progressIterator = _tasks.listIterator();
+	reset();
     }
 
     /** Check if Workflow has reached end */
@@ -168,22 +189,6 @@ public class Workflow
 	    WorkflowObserver observer = it.next();
 	    observer.onChange(_currentTask);
 	}
-    }
-
-
-    /** Initialize workflow object from xml */
-    protected void initialize(String xml)
-    {
-	/* use javax.xml.parsers.DocumentBuilderFactory */
-	_name = "Demo workflow";
-	_description = "A internal test workflow for testing and development.";
-	_tasks.add(new WorkflowTask("Task 1", 10*1000));
-	_tasks.add(new WorkflowTask("Task 2", 30*1000));
-	_tasks.add(new WorkflowTask("Task 3", 10*1000));
-
-	_progressIterator = _tasks.listIterator();
-
-	reset();
     }
 };
 
