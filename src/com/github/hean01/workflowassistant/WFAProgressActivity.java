@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.ComponentName;
+import android.view.WindowManager;
 
 public class WFAProgressActivity extends Activity implements WorkflowObserver
 {
@@ -59,12 +60,14 @@ public class WFAProgressActivity extends Activity implements WorkflowObserver
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	_serviceIsBound = false;
     }
 
     @Override
     protected void onDestroy()
     {
+	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	super.onDestroy();
     }
 
