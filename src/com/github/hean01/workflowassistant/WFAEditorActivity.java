@@ -9,17 +9,12 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.ComponentName;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.util.Log;
 
-public class WFAManagerActivity extends Activity
+public class WFAEditorActivity extends Activity
 {
-    private final static String TAG = "WFAManagerActivity";
-    private final static int MENU_OPTION_PREFERENCES = 0;
-    private final static int MENU_OPTION_PROGRESS = 1;
-    private final static int MENU_OPTION_NEW = 2;
+    private final static String TAG = "WFAEditorActivity";
 
     private WFAService _service;
     private boolean _serviceIsBound;
@@ -28,7 +23,7 @@ public class WFAManagerActivity extends Activity
 	    public void onServiceConnected(ComponentName className, IBinder binder) {
 		_service = ((WFAService.WFAServiceBinder) binder).getService();
 		Log.i(TAG, "Connected to service.");
-		setContentView(R.layout.manager);
+		setContentView(R.layout.editor);
 	    }
 
 	    public void onServiceDisconnected(ComponentName className) {
@@ -72,43 +67,5 @@ public class WFAManagerActivity extends Activity
 	if (!_serviceIsBound)
 	    _serviceIsBound = bindService(new Intent(this, WFAService.class),
 					  _serviceConn, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-	menu.add(Menu.NONE, MENU_OPTION_NEW, 0, "New");
-	menu.add(Menu.NONE, MENU_OPTION_PROGRESS, 1, "Progress");
-	menu.add(Menu.NONE, MENU_OPTION_PREFERENCES, 2, "Preferences");
-	return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-	switch(item.getItemId())
-	{
-	case MENU_OPTION_NEW:
-	    startActivity(new Intent(this, WFAEditorActivity.class));
-	    return true;
-
-	case MENU_OPTION_PREFERENCES:
-	    startActivity(new Intent(this, WFAPreferencesActivity.class));
-	    return true;
-
-	case MENU_OPTION_PROGRESS:
-	    startActivity(new Intent(this, WFAProgressActivity.class));
-	    return true;
-
-	default:
-	    Log.w(TAG, "Unhandled menu option " + item.getItemId() + ".");
-	}
-
-	return false;
-    }
-
-    public void onStartButtonClick(View view)
-    {
-	_service.runWorkflow();
     }
 }

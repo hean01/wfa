@@ -18,6 +18,8 @@
 
       <activity android:name="WFAPreferencesActivity" />
 
+      <activity android:name="WFAEditorActivity" />
+
       <service android:name="WFAService"
 	       android:label="@string/service_name">
       </service>

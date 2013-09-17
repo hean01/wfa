@@ -1,7 +1,7 @@
 #+STARTUP: indent overview
 #+TITLE:     Workflow Assistant - Internals
 #+AUTHOR:    Henrik Andersson
-#+EMAIL:     hean01 AT gmail.com
+#+EMAIL:     hean01 AT users.sourceforge.com
 #+DATE:      2013-09-14 Sat
 #+DESCRIPTION:
 #+KEYWORDS:
@@ -47,6 +47,8 @@ A workflow definition is a xml document with file extension
 *** WFAManagerActivity
 This is the main activity, responsible to start the service and be the
 manager of workflows.
+*** WFAEditorActivity
+This activity is used for creating new or edit existing workflows.
 *** WFAProgressActivity
 This activity is the visual progress of an ongoing workflow.
 *** WFAPreferencesActivity
@@ -100,6 +102,9 @@ class WFAPreferencesActivity {
 class WFAProgressActivity {
 }
 
+class WFAEditorActivity {
+}
+
 class ProgressView {
  + nextTask()
  + update()
@@ -149,10 +154,12 @@ class WorkflowTask {
 WFAProgressActivity .. WFAService
 WFAProgressActivity o-- ProgressView
 WFAManagerActivity .. WFAService
+WFAEditorActivity .. WFAService
 WFAPreferencesActivity .. WFAManagerActivity
 WFAPreferencesActivity <|-- android.preference.PreferenceActivity
 WFAPreferencesActivity o-- android.preference.SharedPreferences : _preferences
 WFAManagerActivity <|-- android.app.Activity
+WFAEditorActivity <|-- android.app.Activity
 WorkflowObserver <|.. WFAProgressActivity
 WFAService <|-- android.app.Service
 WFAService o-- WorkflowManager
