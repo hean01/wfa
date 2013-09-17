@@ -160,21 +160,25 @@ class WorkflowTask {
 
 
 
-WFAProgressActivity .. WFAService
-WFAProgressActivity o-- ProgressView
-WFAManagerActivity .. WFAService
-WFAEditorActivity .. WFAService
+
 WFAPreferencesActivity .. WFAManagerActivity
-WFAPreferencesActivity <|-- android.preference.PreferenceActivity
-WFAPreferencesActivity o-- android.preference.SharedPreferences : _preferences
+WFAProgressActivity .. WFAManagerActivity
+WFAEditorActivity .. WFAManagerActivity
+
 WFAManagerActivity <|-- android.app.Activity
 WFAEditorActivity <|-- android.app.Activity
+WFAProgressActivity <|-- android.app.Activity
+
+WFAPreferencesActivity <|-- android.preference.PreferenceActivity
+WFAPreferencesActivity o-- android.preference.SharedPreferences : _preferences
+WFAProgressActivity o-- ProgressView
+
 WorkflowObserver <|.. WFAProgressActivity
 WFAService <|-- android.app.Service
 WFAService o-- WorkflowManager : _workflowManager
 WFAService o-- android.preference.SharedPreferences : _preferences
 WFAService o-- "*" WorkflowObserver : _observers
-WorkflowManager o-- "0..*" Workflow
+WorkflowManager o-- "0..*" Workflow : _workflows
 Workflow o-- "0..*" WorkflowObserver : _observers
 Workflow o-- "1..*" WorkflowTask : _tasks
 Workflow o-- android.preference.SharedPreferences : _preferences
