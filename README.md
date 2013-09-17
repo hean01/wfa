@@ -16,44 +16,6 @@ The progress will also use text-to-speech which guide you through the
 workflow, telling what next step are and count down seconds before
 next step.
 
-A workflow is defined by a xml file with tasks like the following
-example.
-
-	<xml>
-		<workflow name="Rodinal, Full stand, 2x acros 100">
-			<description>8ml Fomadon R09, 1:125 (1L developer)</description>
-			<tasks>
-				<task name="Fill water" time="30s"/>
-				<task name="Presoak" time="3m30s" />
-				<task name="Empty water" time="30s" />
-				<task name="Fill developer" time="30s" />
-				<task name="Agitate" time="30s" />
-				<task name="Full stand" time="59m" />
-				<task name="Empty developer" time="30s" />
-				<task name="Fill water" time="30s" />
-				<task name="Inverse 3 times" time="5s" />
-				<task name="Empty water" time="30s" />
-				<task name="Fill water" time="30s" />
-				<task name="Inverse 3 times" time="5s" />
-				<task name="Empty water" time="30s" />
-				<task name="Fill water" time="30s" />
-				<task name="Inverse 3 times" time="5s" />
-				<task name="Empty water" time="30s" />
-				<task name="Fill water" time="30s" />
-				<task name="Inverse 3 times" time="5s" />
-				<task name="Empty water" time="30s" />
-				<task name="Fill water" time="30s" />
-				<task name="Inverse 3 times" time="5s" />
-				<task name="Empty water" time="30s" />
-				<task name="Fill fix" time="30s" />
-				<task name="Inverse 3 times" time="5s" />
-				<task name="Fixing" time="3m25s" />
-				<task name="Empty fix" time="30s" />
-				<task name="Ilford wash"/>
-			</tasks>
-		</workflow>
-	</xml>
-
 Import / Export of workflows should be easy so users could share their
 workflows. On should be able to click a link to shared definiton and
 the app should import it to list of workflows.

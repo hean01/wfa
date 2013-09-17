@@ -17,10 +17,32 @@
 
 * Workflow Assistant - Internals
 ** Overview
-The application consist of two activities and a service. The service
+The application consist of three activities and a service. The service
 holds all logics and data where activities are simple viewers.  The
 two activities are managing of workflows and the progress of a current
 workflow.
+
+- ManagerActivity, Shows a list of available workflows from here you
+  can start, edit, delete workflows.
+
+- EditorActivity, Edits a workflow and its tasks. Save or cancel changes.
+
+- ProgressActivity, Shows the progress of an ongoing workflow.
+
+A workflow definition is a xml document with file extension
+=.wfa=. Here follows an example of a workflow:
+#+BEGIN_SRC xml
+<workflow name="A name of workflow">
+  <description>A long description of the workflow.</description>
+  <tasks>
+    <task name="First task" time="00:00:30" />
+    <task name="Second task" time="00:02:00" />
+    <task name="Third task" time="01:35:00" />
+    <task name="Last task" time="00:12:10" />
+  </tasks>
+</workflow>
+#+END_SRC
+
 ** Classes
 *** WFAManagerActivity
 This is the main activity, responsible to start the service and be the
