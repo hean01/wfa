@@ -91,6 +91,13 @@ skinparam class {
 
 package com.github.hean01.workflowassistant {
 class WFAService {
+ - _workflowManager : WorkflowManager
+ + handler() : android.os.Handler
+ + preferences() : android.preference.SharedPreferences
+ + workflow() : Workflow
+ + addWorkflowObserver()
+ + removeWorkflowObserver()
+ - shutdown()
 }
 
 class WFAManagerActivity {
@@ -116,6 +123,8 @@ class WorkflowTaskView {
 
 class WorkflowManager {
   + initialize()
+  + size() : int
+  + get(int) : Workflow
   # workflows : List<Workflow>
 }
 
@@ -128,8 +137,8 @@ class Workflow {
  + addObserver(WorkflowObserver)
  + removeObserver(WorkflowObserver)
  + notifyObserversOnChange()
- + name : String
- + description : String
+ + name() : String
+ + description() : String
  # notifyObserverOnNewTask()
  # notifyObserverOnTaskChange()
  - _observers : HashSet
@@ -145,7 +154,7 @@ class WorkflowTask {
   + description : String
   + isFinished() : boolean
   + reset()
-  + clock()
+  + clock(int)
 }
 }
 
@@ -162,13 +171,14 @@ WFAManagerActivity <|-- android.app.Activity
 WFAEditorActivity <|-- android.app.Activity
 WorkflowObserver <|.. WFAProgressActivity
 WFAService <|-- android.app.Service
-WFAService o-- WorkflowManager
+WFAService o-- WorkflowManager : _workflowManager
 WFAService o-- android.preference.SharedPreferences : _preferences
-WorkflowManager "1" o-- "0..*" Workflow
-Workflow "1" o-- "*" WorkflowObserver : _observers
-Workflow "1" o-- "1..*" WorkflowTask : _tasks
+WFAService o-- "*" WorkflowObserver : _observers
+WorkflowManager o-- "0..*" Workflow
+Workflow o-- "0..*" WorkflowObserver : _observers
+Workflow o-- "1..*" WorkflowTask : _tasks
 Workflow o-- android.preference.SharedPreferences : _preferences
-ProgressView o-- "*" WorkflowTaskView
+ProgressView o-- "0..*" WorkflowTaskView
 ProgressView <|-- android.widget.LinearLayout
 WorkflowTaskView <|-- android.widget.LinearLayout
 #+END_SRC
