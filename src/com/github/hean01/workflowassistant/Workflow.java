@@ -75,6 +75,11 @@ public class Workflow
 	return _currentTask;
     }
 
+    public int indexOfCurrentTask()
+    {
+	return _tasks.indexOf(_currentTask);
+    }
+
     /** Reset the workflow */
     public void reset()
     {

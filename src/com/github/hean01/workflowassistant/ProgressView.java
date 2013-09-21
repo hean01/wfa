@@ -85,12 +85,14 @@ public class ProgressView extends LinearLayout
     {
 	super(context);
 	setOrientation(VERTICAL);
-	_currentTaskIndex = 0;
+
 	for (Iterator<WorkflowTask> it = workflow.tasks().iterator(); it.hasNext();)
 	{
 	    WorkflowTask task = it.next();
 	    addView(new WorkflowTaskView(context,task));
 	}
+
+	_currentTaskIndex = workflow.indexOfCurrentTask();
     }
 
     public void nextTask()
