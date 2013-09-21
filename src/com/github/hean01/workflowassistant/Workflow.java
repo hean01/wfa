@@ -134,6 +134,7 @@ public class Workflow
 
 	/* go to next task in workflow */
 	_currentTask = _progressIterator.next();
+	_currentTask.clock(0);
 	notifyOnNewTask();
     }
 
