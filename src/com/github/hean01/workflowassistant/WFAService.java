@@ -11,7 +11,6 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Handler;
 import android.os.Message;
 import android.content.Intent;
 import android.content.Context;
@@ -30,9 +29,6 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 {
     public static final String TAG = "WFAService";
     public static final int CLOCK_RESOLUTION_MS = 1000;
-
-    public static final int MSG_SAY = 1;
-    public static final int MSG_PLAY_BELL = 2;
 
     private static final int NOTIFYID_ONGOING_WORKFLOW = 1;
 
@@ -59,26 +55,6 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 
     private final IBinder _serviceBinder = new WFAServiceBinder();
 
-    private final Handler _serviceHandler = new Handler()
-    {
-	@Override
-	public void handleMessage(Message msg)
-	{
-	    switch(msg.what)
-	    {
-	    case MSG_SAY:
-		say((String)msg.obj);
-		break;
-	    case MSG_PLAY_BELL:
-		bell();
-		break;
-	    default:
-		Log.w(TAG, "No handler for message code " + msg.what);
-		break;
-	    }
-	}
-    };
-
     private class ClockTask extends TimerTask
     {
 	public void run()
@@ -93,7 +69,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 		_timer.cancel();
 		_timer = null;
 
-		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Workflow is completed."));
+		WFAService.this.say("Workflow is completed.");
 
 		/* cancel notification */
 		NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -177,7 +153,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 	}
 
 
-	_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Starting workflow with task:" + _currentWorkflow.task().name()));
+	say("Starting workflow with task:" + _currentWorkflow.task().name());
 
 	/* add status bar notification */
 	NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -253,12 +229,6 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 	    result = false;
 
 	_useTextToSpeech = result;
-    }
-
-    /** get the service handler */
-    public Handler handler()
-    {
-	return _serviceHandler;
     }
 
     /** get shared preferences */
