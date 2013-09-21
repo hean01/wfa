@@ -15,20 +15,26 @@ import android.os.Handler;
 import android.os.Message;
 import android.content.Intent;
 import android.content.Context;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-public class WFAService extends Service implements TextToSpeech.OnInitListener
+public class WFAService extends Service implements TextToSpeech.OnInitListener, WorkflowObserver
 {
     public static final String TAG = "WFAService";
     public static final int CLOCK_RESOLUTION_MS = 1000;
 
     public static final int MSG_SAY = 1;
     public static final int MSG_PLAY_BELL = 2;
+
+    private static final int NOTIFYID_ONGOING_WORKFLOW = 1;
 
     private int _refCount;
     private WorkflowManager _workflowManager;
@@ -39,6 +45,9 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
     private SoundPool _sp;
     private int _soundBell;
     private SharedPreferences _preferences;
+    private Notification _notification;
+
+    private RemoteViews _notificationView;
 
     private Set<WorkflowObserver> _observers;
 
@@ -87,6 +96,10 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 		_timer = null;
 
 		_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Workflow is completed."));
+
+		/* cancel notification */
+		NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		nm.cancel(NOTIFYID_ONGOING_WORKFLOW);
 
 		/* if not bound to activity stop service */
 		if (_refCount == 0)
@@ -162,6 +175,9 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 
 	_serviceHandler.sendMessage(_serviceHandler.obtainMessage(MSG_SAY, "Starting workflow with task:" + _currentWorkflow.task().name()));
 
+	/* add status bar notification */
+	NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+	nm.notify(NOTIFYID_ONGOING_WORKFLOW, _notification);
 
 	_timer = new Timer();
 	_timer.scheduleAtFixedRate(_clockTask, 0, WFAService.CLOCK_RESOLUTION_MS);
@@ -177,9 +193,28 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 
 	_tts = new TextToSpeech(this, this);
 
+	_workflowManager = new WorkflowManager(this);
+
+	/* setup notification to show when service is running a workflow */
+	_notificationView = new RemoteViews(getPackageName(), R.layout.notification);
+	_notificationView.setTextViewText(R.id.notification_title, "");
+
+	_notification = new Notification();
+	_notification.tickerText = "Ongoing workflow";
+	_notification.icon = R.drawable.icon;
+	_notification.contentIntent = PendingIntent.getActivity(this, 0,
+								new Intent(this, WFAProgressActivity.class), 0);
+	_notification.contentView = _notificationView;
+	_notification.flags |= (Notification.FLAG_ONGOING_EVENT |
+				Notification.FLAG_NO_CLEAR |
+				Notification.FLAG_FOREGROUND_SERVICE);
+
+	/* setup sound playback */
 	_sp = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 	_soundBell = _sp.load(this, R.raw.bell, 1);
-	_workflowManager = new WorkflowManager(this);
+
+	/* add the service as an workflow observer */
+	addWorkflowObserver(this);
 
 	Toast.makeText(this, R.string.service_started, Toast.LENGTH_SHORT).show();
     }
@@ -195,6 +230,9 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 	    _tts.stop();
 	    _tts.shutdown();
 	}
+
+	NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+	nm.cancel(NOTIFYID_ONGOING_WORKFLOW);
 
 	Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_SHORT).show();
     }
@@ -254,5 +292,19 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener
 
 	return false;
     }
+
+
+    public void onTask(WorkflowTask task)
+    {
+	_notificationView.setTextViewText(R.id.notification_title, _currentWorkflow.name());
+	_notificationView.setTextViewText(R.id.notification_content, task.name());
+	NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+	nm.notify(NOTIFYID_ONGOING_WORKFLOW, _notification);
+    }
+
+    public void onChange(WorkflowTask task)
+    {
+    }
+
 
 }
