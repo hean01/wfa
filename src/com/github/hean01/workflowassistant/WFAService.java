@@ -67,12 +67,10 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 	    switch(msg.what)
 	    {
 	    case MSG_SAY:
-		if (_preferences.getBoolean("tts_feedback", false))
-		    say((String)msg.obj);
+		say((String)msg.obj);
 		break;
 	    case MSG_PLAY_BELL:
-		if (_preferences.getBoolean("bell_feedback", false))
-		    _sp.play(_soundBell, 1.0f, 1.0f, 0, 0, 1.0f);
+		bell();
 		break;
 	    default:
 		Log.w(TAG, "No handler for message code " + msg.what);
@@ -113,10 +111,16 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
     /** Speak message using TextToSpeech */
     private void say(String message)
     {
-	if (_useTextToSpeech)
+	if (_useTextToSpeech && _preferences.getBoolean("tts_feedback", false))
 	    _tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
 	else
 	    Log.i(TAG, message);
+    }
+    /** Sound a bell */
+    private void bell()
+    {
+	if (_preferences.getBoolean("bell_feedback", false))
+	    _sp.play(_soundBell, 1.0f, 1.0f, 0, 0, 1.0f);
     }
 
     /** Register a WorkflowObserver with the service */
@@ -300,11 +304,33 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 	_notificationView.setTextViewText(R.id.notification_content, task.name());
 	NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 	nm.notify(NOTIFYID_ONGOING_WORKFLOW, _notification);
+
+	/* Announce task */
+	bell();
+	say(task.name());
     }
 
     public void onChange(WorkflowTask task)
     {
+	WorkflowTask nextTask = _currentWorkflow.nextTask();
+
+	if (nextTask != null)
+	{
+	    /* Announce next task if near end of current */
+	    if ((task.length() >= (30*1000)) && (task.timeLeft() == (10*1000)) &&
+		_preferences.getBoolean("announce_next_task",false))
+	    {
+		bell();
+		say(nextTask.name() + " starts in 10 seconds.");
+	    }
+
+	    /* countdown for upcoming task */
+	    if (task.timeLeft() <= 5*1000 && task.timeLeft() >= 1000 && (task.timeLeft() % 1000) == 0)
+	    {
+		if (_preferences.getBoolean("countdown", false))
+		    say(""+(task.timeLeft()/1000));
+	    }
+
+	}
     }
-
-
 }

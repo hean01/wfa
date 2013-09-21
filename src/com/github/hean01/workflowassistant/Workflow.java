@@ -7,9 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import android.util.Log;
-import android.os.Handler;
 import android.os.Message;
-import android.content.SharedPreferences;
 
 /** A workflow */
 public class Workflow
@@ -22,8 +20,6 @@ public class Workflow
     private ArrayList<WorkflowTask> _tasks;
     private ListIterator<WorkflowTask> _progressIterator;
     private WorkflowTask _currentTask;
-    private Handler _serviceHandler;
-    private SharedPreferences _preferences;
     private Set<WorkflowObserver> _observers;
 
     public Workflow(WFAService service)
@@ -33,31 +29,33 @@ public class Workflow
 	_description = "";
 	_tasks = new ArrayList<WorkflowTask>();
 	_observers = new HashSet<WorkflowObserver>();
-	_serviceHandler = service.handler();
-	_preferences = service.preferences();
     }
 
+    /** set name of workflow */
     public void name(String name)
     {
 	_name = name;
     }
 
+    /** get name of workflow */
     public String name()
     {
 	return _name;
     }
 
+    /** set description of workflow */
     public void description(String description)
     {
 	_description = description;
     }
 
+    /** add a task to workflow */
     public void addTask(WorkflowTask task)
     {
 	_tasks.add(task);
     }
 
-    /* finalizes the workflow */
+    /** finalizes the workflow */
     public void finalize()
     {
 	_progressIterator = _tasks.listIterator();
@@ -75,6 +73,17 @@ public class Workflow
 	return _currentTask;
     }
 
+    /** get next task in workflow */
+    public WorkflowTask nextTask()
+    {
+	int nidx = _progressIterator.nextIndex();
+	if (nidx != _tasks.size())
+	    return _tasks.get(nidx);
+
+	return null;
+    }
+
+    /** get index of current task in workflow */
     public int indexOfCurrentTask()
     {
 	return _tasks.indexOf(_currentTask);
@@ -108,58 +117,17 @@ public class Workflow
 	    notifyOnNewTask();
 	}
 
+	/* clock task and notify observers on change */
 	_currentTask.clock(time);
 	notifyOnTaskChange();
 
-	/* notify about next task if near end of current task */
-	int nidx = _progressIterator.nextIndex();
-	if (nidx != _tasks.size())
-	{
-	    if ((_currentTask.length() >= (30*1000)) && (_currentTask.timeLeft() == (10*1000)))
-	    {
-		WorkflowTask task = _tasks.get(nidx);
-
-		if (_preferences.getBoolean("announce_next_task", false))
-		{
-		    _serviceHandler.sendEmptyMessage(WFAService.MSG_PLAY_BELL);
-		    Message msg = _serviceHandler.obtainMessage(WFAService.MSG_SAY,
-								task.name() + " starts in 10 seconds.");
-		    _serviceHandler.sendMessage(msg);
-		}
-	    }
-	}
-
-	/* task countdown if not last task in workflow */
-	if (nidx != _tasks.size())
-	{
-	    if (_currentTask.timeLeft() <= 5*1000 &&
-		_currentTask.timeLeft() >= 1000 &&
-		(_currentTask.timeLeft() % 1000) == 0)
-	    {
-		if (_preferences.getBoolean("countdown", false))
-		    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(WFAService.MSG_SAY,
-									      ""+(_currentTask.timeLeft()/1000)));
-	    }
-
-	    /* announce next task */
-	    else if(_currentTask.timeLeft() == 0 &&
-		    _currentTask.getState() != WorkflowTask.State.FINISHED)
-	    {
-		_serviceHandler.sendEmptyMessage(WFAService.MSG_PLAY_BELL);
-		WorkflowTask task = _tasks.get(nidx);
-		Message msg = _serviceHandler.obtainMessage(WFAService.MSG_SAY, task.name());
-		_serviceHandler.sendMessage(msg);
-	    }
-	}
-
+	/* is task finished */
 	if (_currentTask.getState() != WorkflowTask.State.FINISHED)
 	    return;
 
-	/* check if workflow has reached the end */
+	/* is workflow finished */
 	if (!_progressIterator.hasNext())
 	{
-	    _serviceHandler.sendMessage(_serviceHandler.obtainMessage(WFAService.MSG_SAY,
-								      "Reached end of workflow."));
 	    _state = State.FINISHED;
 	    return;
 	}
