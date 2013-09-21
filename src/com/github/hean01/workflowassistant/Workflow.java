@@ -42,6 +42,11 @@ public class Workflow
 	_name = name;
     }
 
+    public String name()
+    {
+	return _name;
+    }
+
     public void description(String description)
     {
 	_description = description;
