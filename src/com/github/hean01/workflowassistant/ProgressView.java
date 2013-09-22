@@ -12,7 +12,7 @@ import android.view.Gravity;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.LinearLayout;
-
+import android.graphics.Typeface;
 public class ProgressView extends LinearLayout
 {
 
@@ -34,6 +34,7 @@ public class ProgressView extends LinearLayout
 	    setBackgroundColor(0xff308020);
 	    setPadding(10,10,10,10);
 	    _time = new TextView(context);
+	    _time.setTypeface(Typeface.DEFAULT_BOLD);
 	    _time.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 60);
 	    _time.setGravity(Gravity.CENTER);
 	    _time.setShadowLayer(6,2,2,0xff000000);
@@ -54,14 +55,15 @@ public class ProgressView extends LinearLayout
 
 	    desc = desc.trim();
 	    if (!desc.isEmpty())
-		desc += " - ";
+		desc += "  -  ";
 
 	    desc += _task.name();
 
 	    _name = new TextView(context);
 	    _name.setText(desc);
+	    _time.setTypeface(Typeface.DEFAULT);
 	    _name.setGravity(Gravity.CENTER);
-	    _name.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 30);
+	    _name.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
 	    _name.setShadowLayer(4,1,1,0xff000000);
 	    addView(_name);
 
