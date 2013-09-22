@@ -1,0 +1,14 @@
+<workflow name="Fomadon, 60min Full stand">
+  <description>Film development demo work flow. This workflow is assiting through a full stand using Fomadon 1l developer.</description>
+  <tasks>
+    <task name="fill water" time="00:00:30"/>
+    <task name="pre-soak" time="00:03:00"/>
+    <task name="empty water" time="00:00:30"/>
+    <task name="fill developer" time="00:00:30"/>
+    <task name="agitate" time="00:00:30"/>
+    <task name="full stand" time="00:58:30"/>
+    <task name="empty developer" time="00:00:30"/>
+    <task name="water stop" time="00:04:00"/>
+    <task name="fix and inverse each 10 second" time="00:04:00"/>
+  </tasks>
+</workflow>

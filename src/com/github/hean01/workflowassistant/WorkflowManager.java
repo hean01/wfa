@@ -78,6 +78,7 @@ public class WorkflowManager extends DefaultHandler
 	    try {
 		Log.w(TAG,"LOADING DEMO!");
 		load(_service.getAssets().open("demo1.wfa"));
+		load(_service.getAssets().open("demo2.wfa"));
 	    } catch (IOException e) {
 	    }
 	}
