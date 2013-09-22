@@ -125,7 +125,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 	    _currentWorkflow.removeObserver(observer);
     }
 
-    public void runWorkflow()
+    public void runWorkflow(int index)
     {
 	/* check if already running */
 	if (_timer != null)
@@ -141,8 +141,14 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 	    return;
 	}
 
+	if (_workflowManager.size() <= index)
+	{
+	    Toast.makeText(this, "Workflow index out of range", Toast.LENGTH_SHORT).show();
+	    return;
+	}
+
 	/* start new workflow */
-	_currentWorkflow = _workflowManager.get(0);
+	_currentWorkflow = _workflowManager.get(index);
 	_currentWorkflow.reset();
 
 	/* add observers */
@@ -241,6 +247,12 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
     public Workflow workflow()
     {
 	return _currentWorkflow;
+    }
+
+    /** get workflow manager */
+    public WorkflowManager manager()
+    {
+	return _workflowManager;
     }
 
     private void shutdown()
