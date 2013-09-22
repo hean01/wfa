@@ -49,6 +49,12 @@ public class Workflow
 	_description = description;
     }
 
+    /** get description of workflow */
+    public String description()
+    {
+	return _description;
+    }
+
     /** add a task to workflow */
     public void addTask(WorkflowTask task)
     {
