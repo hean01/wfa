@@ -5,10 +5,12 @@ import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import android.util.Log;
 
 /** A workflow task */
 public class WorkflowTask
 {
+    private final static String TAG = "WorkflowTask";
     public enum State { READY, RUNNING, FINISHED };
 
     private String _name;
@@ -65,8 +67,15 @@ public class WorkflowTask
 
     private long parseTime(String time) throws ParseException
     {
-	DateFormat fmt = new SimpleDateFormat("hh:mm:ss");
-	Date date = fmt.parse(time);
-	return date.getTime();
+	time = time.trim();
+	String tc[] = time.split(":");
+	if (tc.length != 3)
+	    throw new ParseException("Format wanted HH:mm:ss", 0);
+
+	int ts = Integer.parseInt(tc[0])*60*60;
+	ts += Integer.parseInt(tc[1])*60;
+	ts += Integer.parseInt(tc[2]);
+
+	return ts*1000;
     }
 };
