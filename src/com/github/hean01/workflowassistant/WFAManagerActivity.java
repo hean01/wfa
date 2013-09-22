@@ -145,7 +145,9 @@ public class WFAManagerActivity extends Activity
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo)
     {
-	menu.setHeaderTitle("Header");
+	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+	Workflow workflow = _service.manager().get(info.position);
+	menu.setHeaderTitle(workflow.name());
 	if (_service.workflow() == null)
 	    menu.add(Menu.NONE, MENU_ITEM_START, 0, "Start");
 	menu.add(Menu.NONE, MENU_ITEM_EDIT, 1, "Edit");
@@ -156,7 +158,6 @@ public class WFAManagerActivity extends Activity
     public boolean onContextItemSelected(MenuItem item)
     {
 	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-	Workflow worflow = _service.manager().get(info.position);
 	switch(item.getItemId())
 	{
 	case MENU_ITEM_START:
