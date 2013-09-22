@@ -1,6 +1,7 @@
 package com.github.hean01.workflowassistant;
 
 import java.util.Iterator;
+import java.util.Date;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -23,6 +24,7 @@ public class ProgressView extends LinearLayout
 	TextView _time;
 	TextView _name;
 	WorkflowTask _task;
+	Date _date;
 
 	public WorkflowTaskView(Context context, WorkflowTask task) {
 	    super(context);
@@ -38,8 +40,26 @@ public class ProgressView extends LinearLayout
 	    _time.setText("00:00:00");
 	    addView(_time);
 
+	    _date = new Date(task.length());
+
+	    String desc = new String();
+	    if (_date.getHours() != 0)
+		desc += String.format(" %dh", _date.getHours());
+
+	    if (_date.getMinutes() != 0)
+		desc += String.format(" %dm", _date.getMinutes());
+
+	    if (_date.getSeconds() != 0)
+		desc += String.format(" %ds", _date.getSeconds());
+
+	    desc = desc.trim();
+	    if (!desc.isEmpty())
+		desc += " - ";
+
+	    desc += _task.name();
+
 	    _name = new TextView(context);
-	    _name.setText(_task.name());
+	    _name.setText(desc);
 	    _name.setGravity(Gravity.CENTER);
 	    _name.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 30);
 	    _name.setShadowLayer(4,1,1,0xff000000);
