@@ -12,6 +12,16 @@ import android.content.ComponentName;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.LayoutInflater;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
+
 import android.util.Log;
 
 public class WFAManagerActivity extends Activity
@@ -21,21 +31,79 @@ public class WFAManagerActivity extends Activity
     private final static int MENU_OPTION_PROGRESS = 1;
     private final static int MENU_OPTION_NEW = 2;
 
+    private final static int MENU_ITEM_START = 0;
+    private final static int MENU_ITEM_EDIT = 1;
+    private final static int MENU_ITEM_DELETE = 2;
+
     private WFAService _service;
     private boolean _serviceIsBound;
 
-    private ServiceConnection _serviceConn = new ServiceConnection() {
-	    public void onServiceConnected(ComponentName className, IBinder binder) {
-		_service = ((WFAService.WFAServiceBinder) binder).getService();
-		Log.i(TAG, "Connected to service.");
-		setContentView(R.layout.manager);
-	    }
+    private ServiceConnection _serviceConn = new ServiceConnection()
+    {
+	public void onServiceConnected(ComponentName className, IBinder binder) {
+	    _service = ((WFAService.WFAServiceBinder) binder).getService();
+	    Log.i(TAG, "Connected to service.");
+	    setContentView(R.layout.manager);
 
-	    public void onServiceDisconnected(ComponentName className) {
-		_service = null;
-		Log.i(TAG, "Disconnected from service.");
+	    Workflow[] workflows = _service.manager().workflows();
+	    WorkflowAdapter adapter = new WorkflowAdapter(WFAManagerActivity.this,
+							  R.layout.workflow_list_item, workflows);
+	    ListView lv = (ListView)findViewById(R.id.workflow_list);
+	    lv.setAdapter(adapter);
+	    registerForContextMenu(lv);
+	}
+
+	public void onServiceDisconnected(ComponentName className) {
+	    _service = null;
+	    Log.i(TAG, "Disconnected from service.");
+	}
+    };
+
+    /** Workflow adapter */
+    public class WorkflowAdapter extends ArrayAdapter<Workflow>
+    {
+	private Context _context;
+	private int _layoutResourceId;
+	private Workflow _data[] = null;
+
+	public WorkflowAdapter(Context context, int layoutResourceId, Workflow[] data)
+	{
+	    super(context, layoutResourceId, data);
+	    _layoutResourceId = layoutResourceId;
+	    _context = context;
+	    _data = data;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent)
+	{
+	    View row = convertView;
+	    WorkflowHolder holder = null;
+
+	    if (row == null)
+	    {
+		LayoutInflater inflater = ((Activity)_context).getLayoutInflater();
+		row = inflater.inflate(_layoutResourceId, parent, false);
+		holder = new WorkflowHolder();
+		holder.name = (TextView)row.findViewById(R.id.title);
+		holder.description = (TextView)row.findViewById(R.id.description);
+		row.setTag(holder);
 	    }
-	};
+	    else
+		holder = (WorkflowHolder)row.getTag();
+
+	    holder.name.setText(_data[position].name());
+	    holder.description.setText(_data[position].description());
+
+	    return row;
+	}
+
+	private class WorkflowHolder
+	{
+	    TextView name;
+	    TextView description;
+	}
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -75,6 +143,38 @@ public class WFAManagerActivity extends Activity
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo)
+    {
+	menu.setHeaderTitle("Header");
+	if (_service.workflow() == null)
+	    menu.add(Menu.NONE, MENU_ITEM_START, 0, "Start");
+	menu.add(Menu.NONE, MENU_ITEM_EDIT, 1, "Edit");
+	menu.add(Menu.NONE, MENU_ITEM_DELETE, 2, "Delete");
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item)
+    {
+	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+	Workflow worflow = _service.manager().get(info.position);
+	switch(item.getItemId())
+	{
+	case MENU_ITEM_START:
+	    _service.runWorkflow(info.position);
+	    startActivity(new Intent(this, WFAProgressActivity.class));
+	    break;
+	case MENU_ITEM_EDIT:
+	    startActivity(new Intent(this, WFAEditorActivity.class));
+	    break;
+	case MENU_ITEM_DELETE:
+	    break;
+	default:
+	    break;
+	}
+	return true;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
 	menu.add(Menu.NONE, MENU_OPTION_NEW, 0, "New");
@@ -105,10 +205,5 @@ public class WFAManagerActivity extends Activity
 	}
 
 	return false;
-    }
-
-    public void onStartButtonClick(View view)
-    {
-	_service.runWorkflow();
     }
 }
