@@ -30,7 +30,7 @@ public class ProgressView extends LinearLayout
 
 	    setOrientation(VERTICAL);
 	    setBackgroundColor(0xff308020);
-	    setPadding(2,2,2,2);
+	    setPadding(10,10,10,10);
 	    _time = new TextView(context);
 	    _time.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 60);
 	    _time.setGravity(Gravity.CENTER);
