@@ -98,6 +98,9 @@ public class ProgressView extends LinearLayout
 
     public void nextTask()
     {
+	WorkflowTaskView tv = (WorkflowTaskView)getChildAt(_currentTaskIndex);
+	scrollBy(0, tv.getMeasuredHeight());
+
 	_currentTaskIndex++;
 	update();
     }
@@ -107,4 +110,14 @@ public class ProgressView extends LinearLayout
 	WorkflowTaskView tv = (WorkflowTaskView)getChildAt(_currentTaskIndex);
 	tv.update();
     }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int ow, int oh)
+    {
+	WorkflowTaskView tv = (WorkflowTaskView)getChildAt(_currentTaskIndex);
+	int offs = tv.getMeasuredHeight() * _currentTaskIndex;
+	scrollTo(0, -((h/2) - (tv.getMeasuredHeight()/2)));
+	scrollBy(0, offs);
+    }
+
 }
