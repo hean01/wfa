@@ -49,6 +49,11 @@ public class WorkflowManager extends DefaultHandler
 	return _workflows.get(index);
     }
 
+    public Workflow[] workflows()
+    {
+	return _workflows.toArray(new Workflow[0]);
+    }
+
     /** initialize manager with stored workflows */
     public void initialize()
     {
