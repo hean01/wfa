@@ -14,6 +14,13 @@
         />
 
     <CheckBoxPreference 
+        android:key="vibrator_feedback"
+        android:summary="Enable or disable the use of vibration feedback"
+        android:title="Enable Vibrator"
+        android:defaultValue="true"
+        />
+
+    <CheckBoxPreference
         android:key="bell_feedback"
         android:summary="Enable or disable the use of bell sound"
         android:title="Enable bell" 

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import android.speech.tts.TextToSpeech;
+import android.os.Vibrator;
 import android.util.Log;
 import android.os.Binder;
 import android.os.IBinder;
@@ -38,6 +39,7 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
     private static Timer _timer;
     private boolean _useTextToSpeech = false;
     private TextToSpeech _tts;
+    private Vibrator _vibrator;
     private SoundPool _sp;
     private int _soundBell;
     private SharedPreferences _preferences;
@@ -97,6 +99,9 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
     {
 	if (_preferences.getBoolean("bell_feedback", false))
 	    _sp.play(_soundBell, 1.0f, 1.0f, 0, 0, 1.0f);
+
+	if (_preferences.getBoolean("vibrator_feedback", false))
+	    _vibrator.vibrate(150);
     }
 
     /** Register a WorkflowObserver with the service */
@@ -176,6 +181,9 @@ public class WFAService extends Service implements TextToSpeech.OnInitListener, 
 	_observers = new HashSet<WorkflowObserver>();
 
 	_preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+	_vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
 	_tts = new TextToSpeech(this, this);
 
